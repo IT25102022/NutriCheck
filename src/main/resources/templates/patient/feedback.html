@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('System Feedback - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">💬 System Feedback &amp; Suggestions</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Help us improve NutriCheck! Share your ideas, report issues, or tell us about your experience.</p>
+                </div>
+                <a th:href="@{/patient/dashboard}" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+            </div>
+
+            <!-- Submit Feedback Form Card -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">✍️ Submit New Feedback</h2>
+                </div>
+                <form th:action="@{/patient/feedback}" method="post">
+                    <div class="form-group">
+                        <label class="form-label">Subject / Topic</label>
+                        <input type="text" name="subject" class="form-control" maxlength="150"
+                               placeholder="e.g. Diet plan recommendation accuracy, appointment booking experience, feature suggestion...">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Feedback Message *</label>
+                        <textarea name="message" class="form-control" rows="4" required
+                                  placeholder="Please provide details about your experience or suggestion..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                        Send Feedback
+                    </button>
+                </form>
+            </div>
+
+            <!-- Feedback History Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Your Feedback History</h2>
+                    <span class="badge badge-blue" th:text="${feedbackList.size() + ' Total'}">0 Total</span>
+                </div>
+
+                <div th:if="${feedbackList == null or feedbackList.isEmpty()}" style="text-align: center; padding: 2.5rem 0; color: var(--text-muted);">
+                    <p>You haven't submitted any feedback yet. Use the form above to share your thoughts!</p>
+                </div>
+
+                <div class="table-responsive" th:if="${feedbackList != null and !feedbackList.isEmpty()}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 160px;">Submitted On</th>
+                                <th style="width: 180px;">Subject</th>
+                                <th>Your Message</th>
+                                <th style="width: 130px;">Status</th>
+                                <th style="width: 200px;">Admin Response</th>
+                                <th style="width: 140px; text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="f : ${feedbackList}">
+                                <td>
+                                    <strong th:text="${#temporals.format(f.createdAt, 'MMM dd, yyyy')}">Date</strong><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${#temporals.format(f.createdAt, 'hh:mm a')}">Time</span>
+                                </td>
+                                <td>
+                                    <strong th:text="${f.subject != null ? f.subject : 'General Feedback'}">Subject</strong>
+                                </td>
+                                <td style="font-size: 0.9rem; line-height: 1.5;" th:text="${f.message}">Feedback content</td>
+                                <td>
+                                    <span th:class="'badge ' + ${f.status.badgeClass}" th:text="${f.status.displayName}">Status</span>
+                                </td>
+                                <td style="font-size: 0.85rem;">
+                                    <span th:if="${f.adminNotes != null}" th:text="${f.adminNotes}" style="color: var(--primary-dark); font-weight: 500;">Admin response</span>
+                                    <span th:if="${f.adminNotes == null}" style="color: var(--text-light); font-style: italic;">Awaiting review</span>
+                                </td>
+                                <td style="text-align: right; white-space: nowrap;">
+                                    <button type="button" class="btn btn-outline btn-sm" style="padding: 3px 8px; font-size: 0.8rem; margin-right: 4px;"
+                                            th:data-id="${f.id}"
+                                            th:data-subject="${f.subject}"
+                                            th:data-message="${f.message}"
+                                            onclick="openEditFeedbackModal(this)">
+                                        ✏️ Edit
+                                    </button>
+                                    <form th:action="@{/patient/feedback/{id}/delete(id=${f.id})}" method="post" style="display:inline;"
+                                          onsubmit="return confirm('Are you sure you want to permanently delete this feedback submission? This action cannot be undone.');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" style="padding: 3px 8px; font-size: 0.8rem;">
+                                            🗑 Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Edit Feedback Modal -->
+            <div id="editFeedbackModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 9999; align-items: center; justify-content: center; padding: 1rem;">
+                <div class="card" style="max-width: 520px; width: 100%; box-shadow: var(--shadow-lg); margin: auto;">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2 class="card-title" style="font-size: 1.15rem;">✏️ Edit Your Feedback</h2>
+                        <button type="button" onclick="closeEditFeedbackModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+                    </div>
+                    <form id="editFeedbackForm" th:action="@{/patient/feedback/0/update}" th:data-base-action="@{/patient/feedback/}" method="post" style="margin-top: 1rem;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <div class="form-group">
+                            <label class="form-label">Subject / Topic</label>
+                            <input type="text" id="modalFeedbackSubject" name="subject" class="form-control" maxlength="150" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Feedback Message *</label>
+                            <textarea id="modalFeedbackMessage" name="message" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.5rem;">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="closeEditFeedbackModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+                function openEditFeedbackModal(btn) {
+                    const id = btn.getAttribute('data-id');
+                    const subject = btn.getAttribute('data-subject') || '';
+                    const message = btn.getAttribute('data-message') || '';
+                    const modal = document.getElementById('editFeedbackModal');
+                    const form = document.getElementById('editFeedbackForm');
+                    const baseAction = form.getAttribute('data-base-action') || '/patient/feedback/';
+                    form.action = baseAction.endsWith('/') ? baseAction + id + '/update' : baseAction + '/' + id + '/update';
+                    document.getElementById('modalFeedbackSubject').value = subject;
+                    document.getElementById('modalFeedbackMessage').value = message;
+                    modal.style.display = 'flex';
+                }
+
+                function closeEditFeedbackModal() {
+                    document.getElementById('editFeedbackModal').style.display = 'none';
+                }
+
+                document.getElementById('editFeedbackModal').addEventListener('click', function(e) {
+                    if (e.target === this) closeEditFeedbackModal();
+                });
+            </script>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

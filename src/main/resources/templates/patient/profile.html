@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Profile Settings - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container container-narrow">
+
+            <div style="margin-bottom: 2rem;">
+                <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">👤 Profile &amp; Account Settings</h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">Manage your personal information, demographic details, and password security.</p>
+            </div>
+
+            <!-- Personal Info Form -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">📝 Personal Information</h2>
+                </div>
+                <form th:action="@{/patient/profile/update}" method="post">
+                    <div class="grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Username (Read-only)</label>
+                            <input type="text" class="form-control" th:value="${user.username}" readonly style="background: var(--bg-card-subtle);">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address (Read-only)</label>
+                            <input type="text" class="form-control" th:value="${user.email}" readonly style="background: var(--bg-card-subtle);">
+                        </div>
+                    </div>
+
+                    <div class="grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" name="fullName" th:value="${user.fullName}" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" name="phone" th:value="${user.phone}" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Age</label>
+                            <input type="number" name="age" th:value="${user.age}" class="form-control" min="5" max="120">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select name="gender" class="form-control">
+                                <option value="">Select Gender</option>
+                                <option value="Male" th:selected="${user.gender == 'Male'}">Male</option>
+                                <option value="Female" th:selected="${user.gender == 'Female'}">Female</option>
+                                <option value="Other" th:selected="${user.gender == 'Other'}">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                        Update Profile Details
+                    </button>
+                </form>
+            </div>
+
+            <!-- Password Change Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🔒 Change Account Password</h2>
+                </div>
+                <form th:action="@{/patient/profile/change-password}" method="post">
+                    <div class="form-group">
+                        <label class="form-label">Current Password *</label>
+                        <input type="password" name="currentPassword" class="form-control" required placeholder="Enter current password">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">New Password *</label>
+                        <input type="password" name="newPassword" class="form-control" required minlength="6" placeholder="At least 6 characters">
+                    </div>
+
+                    <button type="submit" class="btn btn-secondary" style="margin-top: 0.5rem;">
+                        Update Password
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
