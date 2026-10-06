@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Notifications - Healthcare Professional - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">🔔 Clinical Alerts &amp; Updates</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Incoming consultation alerts and diet plan review updates.</p>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <form th:if="${unreadCount > 0}" th:action="@{/healthcare-professional/notifications/read-all}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-outline btn-sm">✓ Mark All as Read</button>
+                    </form>
+                    <a th:href="@{/healthcare-professional/dashboard}" class="btn btn-primary btn-sm">&larr; Back to Dashboard</a>
+                </div>
+            </div>
+
+            <!-- Notifications Feed Card -->
+            <div class="card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 class="card-title">📋 Clinical Alerts Feed</h2>
+                    <div style="display: flex; gap: 8px;">
+                        <span class="badge badge-blue" th:text="${notifications.size() + ' Total'}">0 Total</span>
+                        <span th:if="${unreadCount > 0}" class="badge badge-amber" th:text="${unreadCount + ' Unread'}">0 Unread</span>
+                    </div>
+                </div>
+
+                <div th:if="${notifications == null or notifications.isEmpty()}" style="text-align: center; padding: 3rem 0; color: var(--text-muted);">
+                    <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">🎉 No pending alerts!</p>
+                    <p style="font-size: 0.9rem;">You have no clinical alerts at the moment.</p>
+                </div>
+
+                <div th:if="${notifications != null and !notifications.isEmpty()}" style="display: flex; flex-direction: column; gap: 12px; margin-top: 1rem;">
+                    <div th:each="n : ${notifications}"
+                         th:style="${n.isRead} ? 'background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1.25rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;' : 'background: var(--primary-subtle); border: 1px solid var(--primary-border); border-left: 4px solid var(--primary); border-radius: var(--radius-sm); padding: 1.25rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;'">
+                        
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+                                <span th:class="'badge ' + ${n.type.badgeClass}" th:text="${n.type.displayName}">Type</span>
+                                <strong style="font-size: 1.05rem; color: var(--text-main);" th:text="${n.title}">Notification Title</strong>
+                                <span th:if="${!n.isRead}" class="badge badge-rose" style="font-size: 0.7rem;">NEW</span>
+                            </div>
+                            <p style="font-size: 0.92rem; color: var(--text-main); margin: 0 0 8px 0; line-height: 1.5; white-space: pre-line;" th:text="${n.message}">Message text</p>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${#temporals.format(n.createdAt, 'MMM dd, yyyy • hh:mm a')}">Date</span>
+                        </div>
+
+                        <div style="flex-shrink: 0; display: flex; gap: 8px; align-items: center;">
+                            <form th:if="${!n.isRead}" th:action="@{/healthcare-professional/notifications/{id}/read(id=${n.id})}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 4px 8px;">
+                                    Mark as Read
+                                </button>
+                            </form>
+                            <span th:if="${n.isRead}" style="font-size: 0.8rem; color: var(--primary-dark); font-weight: 600;">
+                                ✓ Read
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
