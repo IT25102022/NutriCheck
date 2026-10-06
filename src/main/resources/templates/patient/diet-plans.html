@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Personalized Diet Plans - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">🥗 Personalized Diet Plans</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">
+                        Rule-based dietary regimens curated by nutritionists and customized for specific BMI goals.
+                    </p>
+                </div>
+                <div th:if="${userBmiCategory != null}">
+                    <span class="user-badge" style="background: var(--primary-subtle); border-color: var(--primary-border); color: var(--primary-dark);">
+                        Your Category: <strong th:text="${userBmiCategory.displayName}" style="margin-left: 4px;">Normal Weight</strong>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Search & Filters Strip -->
+            <div class="card" style="margin-bottom: 2rem; padding: 1.25rem;">
+                <form th:action="@{/patient/diet-plans}" method="get" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label class="form-label">Search Keyword</label>
+                        <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="Search diet by title or keywords...">
+                    </div>
+
+                    <div style="min-width: 180px;">
+                        <label class="form-label">Diet Goal</label>
+                        <select name="category" class="form-control">
+                            <option value="">All Categories</option>
+                            <option th:each="c : ${dietCategories}" th:value="${c}" th:text="${c.displayName}"
+                                    th:selected="${selectedCategory == c}">Category</option>
+                        </select>
+                    </div>
+
+                    <div style="min-width: 180px;">
+                        <label class="form-label">Target BMI Tier</label>
+                        <select name="bmiCategory" class="form-control">
+                            <option value="">All BMI Tiers</option>
+                            <option th:each="b : ${bmiCategories}" th:value="${b}" th:text="${b.displayName}"
+                                    th:selected="${selectedBmiCategory == b}">BMI</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="btn btn-primary">Filter Diets</button>
+                        <a th:href="@{/patient/diet-plans}" class="btn btn-outline">Reset</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Diet Plans List Grid -->
+            <div th:if="${plans == null or plans.isEmpty()}" style="text-align: center; padding: 3rem 0; color: var(--text-muted);">
+                <p>No diet plans match your search filter criteria. Try resetting the filters.</p>
+            </div>
+
+            <div class="grid-cols-2" th:if="${plans != null and !plans.isEmpty()}">
+                <div th:each="plan : ${plans}" class="card"
+                     th:style="${plan.targetBmiCategory == userBmiCategory ? 'border: 2px solid var(--primary); box-shadow: var(--shadow-glow-green);' : ''}">
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                <span th:if="${plan.targetBmiCategory == userBmiCategory}" class="badge badge-green">
+                                    ⭐ Recommended For Your BMI
+                                </span>
+                                <span class="badge badge-blue" th:text="${plan.category.displayName}">Category</span>
+                            </div>
+                            <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main);" th:text="${plan.title}">Plan Title</h2>
+                        </div>
+
+                        <span class="badge badge-amber" th:text="${plan.dailyCalories != null ? plan.dailyCalories + ' kcal/day' : 'Balanced'}">2000 kcal</span>
+                    </div>
+
+                    <div style="margin-bottom: 0.75rem;">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Target BMI:</span>
+                        <span th:class="'badge ' + ${plan.targetBmiCategory.badgeClass}" th:text="${plan.targetBmiCategory.displayName}">Normal</span>
+                    </div>
+
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;" th:text="${plan.shortDescription}">Description</p>
+
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.85rem; line-height: 1.7; white-space: pre-line; color: var(--text-main);"
+                         th:text="${plan.mealPlanDetails}">
+                        Daily Meal Breakdown details
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; font-size: 0.8rem; color: var(--text-light);">
+                        <span th:if="${plan.createdBy != null}" th:text="'Curated by: ' + ${plan.createdBy.fullName}">Author</span>
+                        <span th:text="${#temporals.format(plan.createdAt, 'MMM dd, yyyy')}">Date</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

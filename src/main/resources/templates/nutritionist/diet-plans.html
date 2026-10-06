@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Manage Diet Plans - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">🥗 Diet Plan Authoring &amp; Management</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Create, update, and manage rule-based dietary protocols mapped to standard BMI categories.</p>
+                </div>
+                <a th:href="@{/nutritionist/dashboard}" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+            </div>
+
+            <!-- Add New Diet Plan Form Card -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">➕ Author New Diet Plan</h2>
+                </div>
+                <form th:action="@{/nutritionist/diet-plans/create}" th:object="${newPlan}" method="post">
+                    <div class="grid-cols-3">
+                        <div class="form-group">
+                            <label class="form-label">Plan Title *</label>
+                            <input type="text" th:field="*{title}" class="form-control" placeholder="e.g. High-Fiber Mediterranean Heart Diet" required>
+                            <span class="form-text-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Diet Category *</label>
+                            <select th:field="*{category}" class="form-control" required>
+                                <option value="">Select Goal</option>
+                                <option th:each="c : ${dietCategories}" th:value="${c}" th:text="${c.displayName}">Weight Loss</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Target BMI Tier *</label>
+                            <select th:field="*{targetBmiCategory}" class="form-control" required>
+                                <option value="">Select BMI Tier</option>
+                                <option th:each="b : ${bmiCategories}" th:value="${b}" th:text="${b.displayName + ' (' + b.rangeText + ')'}">Normal</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Daily Calorie Target (kcal)</label>
+                            <input type="number" th:field="*{dailyCalories}" class="form-control" placeholder="e.g. 1800">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Short Summary Description *</label>
+                            <input type="text" th:field="*{shortDescription}" class="form-control" placeholder="Concise overview of target benefits and approach" required>
+                            <span class="form-text-error" th:if="${#fields.hasErrors('shortDescription')}" th:errors="*{shortDescription}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Detailed Meal Breakdown (Breakfast, Lunch, Dinner, Snacks, Guidelines) *</label>
+                        <textarea th:field="*{mealPlanDetails}" class="form-control" rows="4"
+                                  placeholder="• Breakfast: Oatmeal with almond milk and blueberries&#10;• Lunch: Grilled chicken salad with olive oil vinaigrette&#10;• Dinner: Baked salmon with roasted vegetables&#10;• Snacks: Greek yogurt with walnuts" required></textarea>
+                        <span class="form-text-error" th:if="${#fields.hasErrors('mealPlanDetails')}" th:errors="*{mealPlanDetails}"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                        Publish Diet Plan
+                    </button>
+                </form>
+            </div>
+
+            <!-- All Plans Grid -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📚 Published Diet Plans</h2>
+                    <span class="badge badge-blue" th:text="${plans.size() + ' Total'}">4 Plans</span>
+                </div>
+
+                <div class="grid-cols-2" style="margin-top: 1rem;">
+                    <div th:each="p : ${plans}" class="card" style="border: 1px solid var(--border-color); background: var(--bg-app);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                            <div>
+                                <span class="badge badge-green" th:text="${p.category.displayName}">Category</span>
+                                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-top: 4px;" th:text="${p.title}">Title</h3>
+                            </div>
+                            <span class="badge badge-amber" th:text="${p.dailyCalories != null ? p.dailyCalories + ' kcal' : 'Standard'}">Calories</span>
+                        </div>
+
+                        <div style="margin-bottom: 0.75rem;">
+                            <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Target BMI:</span>
+                            <span th:class="'badge ' + ${p.targetBmiCategory.badgeClass}" th:text="${p.targetBmiCategory.displayName}">Tier</span>
+                        </div>
+
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;" th:text="${p.shortDescription}">Summary</p>
+
+                        <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; white-space: pre-line; margin-bottom: 1rem; color: var(--text-main);"
+                             th:text="${p.mealPlanDetails}">
+                            Meal breakdown
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+                            <span style="font-size: 0.75rem; color: var(--text-light);" th:text="${p.createdBy != null ? 'Author: ' + p.createdBy.fullName : 'System'}">Author</span>
+                            <div style="display: flex; gap: 8px;">
+                                <a th:href="@{/nutritionist/diet-plans/edit/{id}(id=${p.id})}" class="btn btn-outline btn-sm">Edit</a>
+                                <form th:action="@{/nutritionist/diet-plans/delete/{id}(id=${p.id})}" method="post" onsubmit="return confirm('Delete this diet plan?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

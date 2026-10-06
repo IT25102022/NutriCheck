@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Edit Diet Plan - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container container-narrow">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">✏️ Edit Diet Plan</h1>
+                    <a th:href="@{/nutritionist/diet-plans}" class="btn btn-outline btn-sm">&larr; Back</a>
+                </div>
+
+                <form th:action="@{/nutritionist/diet-plans/edit/{id}(id=${plan.id})}" th:object="${plan}" method="post">
+                    <div class="form-group">
+                        <label class="form-label">Plan Title *</label>
+                        <input type="text" th:field="*{title}" class="form-control" required>
+                        <span class="form-text-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                    </div>
+
+                    <div class="grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Diet Category *</label>
+                            <select th:field="*{category}" class="form-control" required>
+                                <option th:each="c : ${dietCategories}" th:value="${c}" th:text="${c.displayName}">Category</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Target BMI Tier *</label>
+                            <select th:field="*{targetBmiCategory}" class="form-control" required>
+                                <option th:each="b : ${bmiCategories}" th:value="${b}" th:text="${b.displayName + ' (' + b.rangeText + ')'}">Tier</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Daily Calories (kcal)</label>
+                            <input type="number" th:field="*{dailyCalories}" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Short Summary *</label>
+                            <input type="text" th:field="*{shortDescription}" class="form-control" required>
+                            <span class="form-text-error" th:if="${#fields.hasErrors('shortDescription')}" th:errors="*{shortDescription}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Meal Breakdown *</label>
+                        <textarea th:field="*{mealPlanDetails}" class="form-control" rows="5" required></textarea>
+                        <span class="form-text-error" th:if="${#fields.hasErrors('mealPlanDetails')}" th:errors="*{mealPlanDetails}"></span>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">Update Plan</button>
+                        <a th:href="@{/nutritionist/diet-plans}" class="btn btn-outline">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
