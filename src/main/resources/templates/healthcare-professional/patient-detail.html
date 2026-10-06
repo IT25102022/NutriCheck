@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Patient Clinical History - Healthcare Professional - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">
+                        🩺 Patient Consultation File &mdash; <span th:text="${patient.fullName}" style="color: var(--primary-dark);">Patient Name</span>
+                    </h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Review biometric history, BMI progression, and past consultation logs.</p>
+                </div>
+                <a th:href="@{/healthcare-professional/appointments}" class="btn btn-outline btn-sm">&larr; Back to Appointments</a>
+            </div>
+
+            <!-- Patient Demographics Summary -->
+            <div class="grid-cols-4" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-icon blue">👤</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Demographics</span>
+                        <strong th:text="${(patient.age != null ? patient.age + ' yrs' : 'Age N/A') + ', ' + (patient.gender != null ? patient.gender : 'N/A')}">30 yrs, Male</strong>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);" th:text="${'📞 ' + (patient.phone != null and !patient.phone.trim().isEmpty() ? patient.phone : 'No phone provided')}">📞 No phone provided</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">⚖️</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Current BMI</span>
+                        <span class="stat-value" th:text="${latestBmi != null ? latestBmi.bmiValue : 'N/A'}">22.5</span>
+                        <span th:if="${latestBmi != null}" th:class="'badge ' + ${latestBmi.bmiCategory.badgeClass}"
+                              th:text="${latestBmi.bmiCategory.displayName}">Normal</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon rose">📋</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Logs</span>
+                        <span class="stat-value" th:text="${healthRecords.size()}">0</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Biometric entries</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon gold">📅</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Consultations</span>
+                        <span class="stat-value" th:text="${appointments.size()}">0</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Bookings logged</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biometric Records Table -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">📈 Longitudinal Biometric Log</h2>
+                </div>
+                <div th:if="${healthRecords == null or healthRecords.isEmpty()}" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <p>No health records logged for this patient yet.</p>
+                </div>
+                <div class="table-responsive" th:if="${healthRecords != null and !healthRecords.isEmpty()}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Recorded Date</th>
+                                <th>Height (cm)</th>
+                                <th>Weight (kg)</th>
+                                <th>Blood Pressure</th>
+                                <th>Blood Sugar</th>
+                                <th>Cholesterol</th>
+                                <th>Clinical Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="r : ${healthRecords}">
+                                <td th:text="${#temporals.format(r.recordedAt, 'MMM dd, yyyy')}">Date</td>
+                                <td th:text="${r.heightCm != null ? r.heightCm + ' cm' : '-'}">Height</td>
+                                <td th:text="${r.weightKg != null ? r.weightKg + ' kg' : '-'}">Weight</td>
+                                <td th:text="${r.systolicBp != null ? r.systolicBp + '/' + r.diastolicBp + ' mmHg' : '-'}">BP</td>
+                                <td th:text="${r.bloodSugar != null ? r.bloodSugar + ' mg/dL' : '-'}">Sugar</td>
+                                <td th:text="${r.cholesterol != null ? r.cholesterol + ' mg/dL' : '-'}">Cholesterol</td>
+                                <td style="font-size: 0.85rem;" th:text="${r.notes != null ? r.notes : '-'}">Notes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Past Consultations Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🗓 Consultation History</h2>
+                </div>
+                <div th:if="${appointments == null or appointments.isEmpty()}" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <p>No prior consultation appointments.</p>
+                </div>
+                <div class="table-responsive" th:if="${appointments != null and !appointments.isEmpty()}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; Time</th>
+                                <th>Assigned Specialist</th>
+                                <th>Status</th>
+                                <th>Patient Notes</th>
+                                <th>Consultation Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="a : ${appointments}">
+                                <td>
+                                    <strong th:text="${#temporals.format(a.appointmentDate, 'MMM dd, yyyy')}">Date</strong><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${#temporals.format(a.appointmentTime, 'hh:mm a')}">Time</span>
+                                </td>
+                                <td th:text="${a.nutritionist != null ? a.nutritionist.fullName : '-'}">Specialist</td>
+                                <td>
+                                    <span th:class="'badge ' + ${a.status.badgeClass}" th:text="${a.status.displayName}">Status</span>
+                                </td>
+                                <td style="font-size: 0.85rem;" th:text="${a.patientNotes != null ? a.patientNotes : '-'}">Patient Reason</td>
+                                <td style="font-size: 0.85rem;" th:text="${a.consultationNotes != null ? a.consultationNotes : '-'}">Consultation Notes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
