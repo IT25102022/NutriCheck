@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Master Diet Plans - NutriCheck Admin')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">🥗 Master Diet Plans Catalog</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">System-wide repository of dietary regimens published by healthcare professionals.</p>
+                </div>
+                <a th:href="@{/admin/dashboard}" class="btn btn-outline btn-sm">&larr; Back to Admin Dashboard</a>
+            </div>
+
+            <div class="grid-cols-2">
+                <div th:each="p : ${plans}" class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                        <div>
+                            <span class="badge badge-green" th:text="${p.category.displayName}">Category</span>
+                            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-top: 4px;" th:text="${p.title}">Title</h3>
+                        </div>
+                        <span class="badge badge-amber" th:text="${p.dailyCalories != null ? p.dailyCalories + ' kcal' : 'Standard'}">Calories</span>
+                    </div>
+
+                    <div style="margin-bottom: 0.75rem;">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Target BMI:</span>
+                        <span th:class="'badge ' + ${p.targetBmiCategory.badgeClass}" th:text="${p.targetBmiCategory.displayName}">Tier</span>
+                    </div>
+
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;" th:text="${p.shortDescription}">Summary</p>
+
+                    <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; white-space: pre-line; margin-bottom: 0.75rem;"
+                         th:text="${p.mealPlanDetails}">
+                        Meal breakdown
+                    </div>
+
+                    <div style="font-size: 0.75rem; color: var(--text-light); border-top: 1px solid var(--border-color); padding-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span th:text="${p.createdBy != null ? 'Author: ' + p.createdBy.fullName : 'System'}">Author</span> &bull;
+                            <span th:text="${#temporals.format(p.createdAt, 'MMM dd, yyyy')}">Date</span>
+                        </div>
+                        <form th:action="@{/admin/diet-plans/{id}/delete(id=${p.id})}" method="post" style="display: inline;"
+                              onsubmit="return confirm('Are you sure you want to delete this diet plan?');">
+                            <button type="submit" class="btn btn-outline-danger" style="padding: 2px 6px; font-size: 0.75rem;">🗑 Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

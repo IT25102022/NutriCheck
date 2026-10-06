@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Feedback Management - NutriCheck Admin')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Page Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">💬 Feedback Management</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Review patient feedback, track issue resolutions, and provide administrative responses.</p>
+                </div>
+                <a th:href="@{/admin/dashboard}" class="btn btn-outline btn-sm">&larr; Back to Admin Dashboard</a>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="grid-cols-4" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-icon blue">📊</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Submissions</span>
+                        <span class="stat-value" th:text="${totalCount}">0</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">All-time feedback</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon gold">⏳</div>
+                    <div class="stat-info">
+                        <span class="stat-label">New / Pending</span>
+                        <span class="stat-value" th:text="${newCount}">0</span>
+                        <span style="font-size: 0.75rem; color: var(--gold); font-weight: 600;">Requires attention</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon blue">🔍</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Reviewed</span>
+                        <span class="stat-value" th:text="${reviewedCount}">0</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">In progress</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Resolved</span>
+                        <span class="stat-value" th:text="${resolvedCount}">0</span>
+                        <span style="font-size: 0.75rem; color: var(--primary-dark); font-weight: 600;">Completed</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Directory Card -->
+            <div class="card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2 class="card-title">📋 Patient Submissions</h2>
+                        <span class="badge badge-blue" th:text="${feedbackList.size() + ' Displayed'}">0 Displayed</span>
+                    </div>
+
+                    <!-- Status Filter Tabs -->
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <a th:href="@{/admin/feedback}"
+                           th:class="${selectedStatus == null ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}"
+                           style="font-size: 0.8rem; padding: 4px 10px;">All</a>
+                        <a th:href="@{/admin/feedback(status='NEW')}"
+                           th:class="${selectedStatus != null and selectedStatus.name() == 'NEW' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}"
+                           style="font-size: 0.8rem; padding: 4px 10px;">New</a>
+                        <a th:href="@{/admin/feedback(status='REVIEWED')}"
+                           th:class="${selectedStatus != null and selectedStatus.name() == 'REVIEWED' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}"
+                           style="font-size: 0.8rem; padding: 4px 10px;">Reviewed</a>
+                        <a th:href="@{/admin/feedback(status='RESOLVED')}"
+                           th:class="${selectedStatus != null and selectedStatus.name() == 'RESOLVED' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}"
+                           style="font-size: 0.8rem; padding: 4px 10px;">Resolved</a>
+                    </div>
+                </div>
+
+                <div th:if="${feedbackList == null or feedbackList.isEmpty()}" style="text-align: center; padding: 3rem 0; color: var(--text-muted);">
+                    <p>No feedback entries found for this filter.</p>
+                </div>
+
+                <div class="table-responsive" th:if="${feedbackList != null and !feedbackList.isEmpty()}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 150px;">Submitted On</th>
+                                <th style="width: 180px;">Patient</th>
+                                <th>Topic &amp; Feedback Message</th>
+                                <th style="width: 110px;">Status</th>
+                                <th style="width: 270px;">Administrative Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="f : ${feedbackList}">
+                                <td>
+                                    <strong th:text="${#temporals.format(f.createdAt, 'MMM dd, yyyy')}">Date</strong><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${#temporals.format(f.createdAt, 'hh:mm a')}">Time</span>
+                                </td>
+                                <td>
+                                    <strong th:text="${f.patient.fullName}">Patient Name</strong><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${f.patient.email}">Email</span><br/>
+                                    <span style="font-size: 0.75rem; color: var(--text-light);" th:text="${'@' + f.patient.username}">@user</span>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px;"
+                                         th:text="${f.subject != null ? f.subject : 'General Feedback'}">Subject</div>
+                                    <p style="font-size: 0.88rem; line-height: 1.5; color: var(--text-muted); margin: 0; white-space: pre-line;"
+                                       th:text="${f.message}">Feedback text</p>
+                                    <div th:if="${f.adminNotes != null and !f.adminNotes.isEmpty()}" style="margin-top: 6px; padding: 6px 10px; background: var(--surface); border-left: 3px solid var(--primary); border-radius: var(--radius-sm); font-size: 0.8rem;">
+                                        <strong style="color: var(--primary-dark);">Current Admin Note:</strong>
+                                        <span th:text="${f.adminNotes}" style="color: var(--text-main);">Notes</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:class="'badge ' + ${f.status.badgeClass}" th:text="${f.status.displayName}">Status</span>
+                                </td>
+                                <td>
+                                    <form th:action="@{/admin/feedback/{id}/status(id=${f.id})}" method="post">
+                                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                                            <div style="display: flex; gap: 6px; align-items: center;">
+                                                <select name="status" class="form-control" style="font-size: 0.85rem; padding: 4px 8px;">
+                                                    <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.displayName}"
+                                                            th:selected="${f.status == s}">Status</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-primary btn-sm" style="padding: 4px 10px; font-size: 0.8rem; white-space: nowrap;">
+                                                    Update
+                                                </button>
+                                            </div>
+                                            <textarea name="adminNotes" class="form-control" rows="2" style="font-size: 0.8rem; padding: 4px 8px;"
+                                                      placeholder="Optional review/resolution notes..." th:text="${f.adminNotes}"></textarea>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

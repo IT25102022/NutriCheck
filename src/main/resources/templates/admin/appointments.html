@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Master Appointments - NutriCheck Admin')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">📅 Master Appointments Oversight</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Monitor all clinical sessions across patients and nutritionists.</p>
+                </div>
+                <a th:href="@{/admin/dashboard}" class="btn btn-outline btn-sm">&larr; Back to Admin Dashboard</a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 System Consultations Directory</h2>
+                    <span class="badge badge-blue" th:text="${appointments.size() + ' Total'}">3 Total</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; Time</th>
+                                <th>Patient</th>
+                                <th>Nutritionist</th>
+                                <th>Status</th>
+                                <th>Patient Notes</th>
+                                <th>Consultation Notes</th>
+                                <th>Manage Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="a : ${appointments}">
+                                <td>
+                                    <strong th:text="${#temporals.format(a.appointmentDate, 'MMM dd, yyyy')}">Date</strong><br/>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);" th:text="${#temporals.format(a.appointmentTime, 'hh:mm a')}">Time</span>
+                                </td>
+                                <td>
+                                    <strong th:text="${a.patient.fullName}">Patient</strong><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${a.patient.email}">Email</span>
+                                </td>
+                                <td>
+                                    <strong th:text="${a.nutritionist.fullName}">Nutritionist</strong><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${a.nutritionist.email}">Email</span>
+                                </td>
+                                <td>
+                                    <span th:class="'badge ' + ${a.status.badgeClass}" th:text="${a.status.displayName}">Status</span>
+                                </td>
+                                <td style="font-size: 0.85rem; max-width: 180px;" th:text="${a.patientNotes != null ? a.patientNotes : '-'}">Notes</td>
+                                <td style="font-size: 0.85rem; max-width: 180px;" th:text="${a.consultationNotes != null ? a.consultationNotes : '-'}">Feedback</td>
+                                <td style="min-width: 210px;">
+                                    <div style="display: flex; gap: 6px; align-items: center;">
+                                        <form th:action="@{/admin/appointments/{id}/status(id=${a.id})}" method="post" style="display: flex; gap: 4px;">
+                                            <select name="status" class="form-control" style="font-size: 0.8rem; padding: 4px 6px;">
+                                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.displayName}"
+                                                        th:selected="${a.status == s}">Status</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-primary btn-sm" style="padding: 4px 8px; font-size: 0.75rem;">Set</button>
+                                        </form>
+                                        <form th:action="@{/admin/appointments/{id}/delete(id=${a.id})}" method="post" style="display: inline;"
+                                              onsubmit="return confirm('Are you sure you want to delete this appointment?');">
+                                            <button type="submit" class="btn btn-outline-danger" style="padding: 4px 6px; font-size: 0.75rem;">🗑</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
