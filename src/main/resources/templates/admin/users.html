@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Staff & User Management - NutriCheck Admin')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Page Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">👥 Staff &amp; User Accounts Oversight</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Manage clinical nutritionists, provision administrator privileges, and audit patient records.</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a th:href="@{/admin/dashboard}" class="btn btn-outline btn-sm">&larr; Back to Admin Dashboard</a>
+                </div>
+            </div>
+
+            <!-- Role Filter Pills -->
+            <div style="display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
+                <a th:href="@{/admin/users}" 
+                   th:class="${selectedRole == null && (query == null || query.isEmpty()) ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}">
+                    All Users (<span th:text="${users.size()}">0</span>)
+                </a>
+                <a th:href="@{/admin/users(role='ROLE_NUTRITIONIST')}" 
+                   th:class="${selectedRole != null && selectedRole.name() == 'ROLE_NUTRITIONIST' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}">
+                    🩺 Nutritionists (<span th:text="${nutritionistCount}">0</span>)
+                </a>
+                <a th:href="@{/admin/users(role='ROLE_HEALTHCARE_PROFESSIONAL')}" 
+                   th:class="${selectedRole != null && selectedRole.name() == 'ROLE_HEALTHCARE_PROFESSIONAL' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}">
+                    ⚕️ Healthcare Pros (<span th:text="${healthcareProfessionalCount}">0</span>)
+                </a>
+                <a th:href="@{/admin/users(role='ROLE_PATIENT')}" 
+                   th:class="${selectedRole != null && selectedRole.name() == 'ROLE_PATIENT' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}">
+                    👤 Patients (<span th:text="${patientCount}">0</span>)
+                </a>
+                <a th:href="@{/admin/users(role='ROLE_ADMIN')}" 
+                   th:class="${selectedRole != null && selectedRole.name() == 'ROLE_ADMIN' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}">
+                    👑 Administrators (<span th:text="${adminCount}">0</span>)
+                </a>
+            </div>
+
+            <!-- Provisioning Actions Grid -->
+            <div class="grid-cols-2" style="margin-bottom: 2rem; gap: 1.5rem;">
+                <!-- Add Nutritionist Card -->
+                <div class="card" style="padding: 1.5rem; border-top: 3px solid var(--secondary);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2 class="card-title" style="font-size: 1.05rem;">🩺 + Provision Clinical Nutritionist</h2>
+                        <span class="badge badge-blue">Staff Account</span>
+                    </div>
+                    <form th:action="@{/admin/users/create-nutritionist}" method="post">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Full Name *</label>
+                                <input type="text" name="fullName" class="form-control" placeholder="Dr. Jane Smith, RD" required style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Username *</label>
+                                <input type="text" name="username" class="form-control" placeholder="dr_jane" required style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Professional Email *</label>
+                                <input type="email" name="email" class="form-control" placeholder="jane.smith@clinic.com" required style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Initial Password *</label>
+                                <input type="password" name="password" class="form-control" placeholder="Min 6 characters" required minlength="6" style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">License / Registration #</label>
+                                <input type="text" name="licenseNumber" class="form-control" placeholder="e.g. RD-84920" style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Specialization</label>
+                                <input type="text" name="specialization" class="form-control" placeholder="e.g. Diabetes &amp; Metabolism" style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <input type="text" name="phone" class="form-control" placeholder="Phone Contact" style="padding: 6px 8px; font-size: 0.85rem; max-width: 200px;">
+                            <button type="submit" class="btn btn-secondary btn-sm" style="padding: 6px 14px;">Create Nutritionist Account</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Add Healthcare Professional Card -->
+                <div class="card" style="padding: 1.5rem; border-top: 3px solid var(--purple);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2 class="card-title" style="font-size: 1.05rem;">⚕️ + Provision Healthcare Professional</h2>
+                        <span class="badge badge-purple">Staff Account</span>
+                    </div>
+                    <form th:action="@{/admin/users/create-healthcare-professional}" method="post">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Full Name *</label>
+                                <input type="text" name="fullName" class="form-control" placeholder="Dr. Robert Hayes, MD" required style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Username *</label>
+                                <input type="text" name="username" class="form-control" placeholder="dr_hayes" required style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Professional Email *</label>
+                                <input type="email" name="email" class="form-control" placeholder="robert.hayes@hospital.org" required style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Initial Password *</label>
+                                <input type="password" name="password" class="form-control" placeholder="Min 6 characters" required minlength="6" style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">License / Registration #</label>
+                                <input type="text" name="licenseNumber" class="form-control" placeholder="e.g. MD-78210" style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Specialization</label>
+                                <input type="text" name="specialization" class="form-control" placeholder="e.g. Clinical Nutrition &amp; Metabolism" style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Phone Number</label>
+                                <input type="text" name="phone" class="form-control" placeholder="+1 555-0144" style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Status</label>
+                                <select name="status" class="form-control" style="padding: 6px 8px; font-size: 0.85rem;">
+                                    <option value="ACTIVE" selected>ACTIVE</option>
+                                    <option value="INACTIVE">INACTIVE</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button type="submit" class="btn btn-primary btn-sm" style="padding: 6px 14px; background: var(--purple, #7c3aed); border-color: var(--purple, #7c3aed);">Create Healthcare Professional</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Add Administrator Card -->
+                <div class="card" style="padding: 1.5rem; border-top: 3px solid var(--rose);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2 class="card-title" style="font-size: 1.05rem;">👑 + Provision System Administrator</h2>
+                        <span class="badge badge-rose">Admin Privilege</span>
+                    </div>
+                    <form th:action="@{/admin/users/create-admin}" method="post">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Full Name *</label>
+                                <input type="text" name="fullName" class="form-control" placeholder="Admin Full Name" required style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Username *</label>
+                                <input type="text" name="username" class="form-control" placeholder="admin_username" required style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Admin Email *</label>
+                                <input type="email" name="email" class="form-control" placeholder="admin@nutricheck.com" required style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Password *</label>
+                                <input type="password" name="password" class="form-control" placeholder="Min 6 characters" required minlength="6" style="padding: 6px 8px; font-size: 0.85rem;">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label class="form-label" style="font-size: 0.75rem;">Phone Number</label>
+                            <input type="text" name="phone" class="form-control" placeholder="+1 555-0199" style="padding: 6px 8px; font-size: 0.85rem;">
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button type="submit" class="btn btn-primary btn-sm" style="padding: 6px 14px;">Create Administrator Account</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Search Directory Card -->
+            <div class="card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem;">
+                <form th:action="@{/admin/users}" method="get" style="display: flex; gap: 8px; max-width: 600px;">
+                    <input type="text" name="query" th:value="${query}" class="form-control" placeholder="Search by name, email, or username..." style="font-size: 0.9rem;">
+                    <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                    <a th:href="@{/admin/users}" class="btn btn-outline btn-sm">Reset</a>
+                </form>
+            </div>
+
+            <!-- Users Directory Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 System Directory</h2>
+                    <span class="badge badge-blue" th:text="${users.size() + ' Accounts'}">0 Accounts</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th>Contact &amp; Credentials</th>
+                                <th>Clinical Role</th>
+                                <th>Status</th>
+                                <th>Role Modification</th>
+                                <th style="text-align: right;">Admin Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="u : ${users}">
+                                <td>
+                                    <strong th:text="${u.fullName}">Name</strong><br/>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);" th:text="${'ID: #' + u.id}">#1</span>
+                                    <span th:if="${u.licenseNumber != null}" style="font-size: 0.75rem; color: var(--secondary-dark); display: block;"
+                                          th:text="${'Lic: ' + u.licenseNumber}">Lic</span>
+                                </td>
+                                <td>
+                                    <span th:text="${u.email}">email@example.com</span><br/>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);" th:text="${'@' + u.username}">@username</span>
+                                    <span th:if="${u.phone != null}" style="font-size: 0.75rem; color: var(--text-muted);" th:text="${' • ' + u.phone}">phone</span>
+                                </td>
+                                <td>
+                                    <span th:if="${u.role.name() == 'ROLE_ADMIN'}" class="badge badge-rose">👑 Admin</span>
+                                    <span th:if="${u.role.name() == 'ROLE_HEALTHCARE_PROFESSIONAL'}" class="badge badge-purple">⚕️ Healthcare Pro</span>
+                                    <span th:if="${u.role.name() == 'ROLE_NUTRITIONIST'}" class="badge badge-blue">🩺 Nutritionist</span>
+                                    <span th:if="${u.role.name() == 'ROLE_PATIENT'}" class="badge badge-green">👤 Patient</span>
+                                </td>
+                                <td>
+                                    <form th:if="${u.id != admin.id}" th:action="@{/admin/users/{id}/status(id=${u.id})}" method="post" style="display:inline;">
+                                        <input type="hidden" name="status" th:value="${u.status == 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'}">
+                                        <button type="submit" 
+                                                th:class="${u.status == 'ACTIVE' ? 'badge badge-green' : 'badge badge-amber'}" 
+                                                style="border: none; cursor: pointer; padding: 4px 8px; font-size: 0.75rem;"
+                                                th:text="${u.status == 'ACTIVE' ? 'Active' : 'Inactive'}">
+                                            Status
+                                        </button>
+                                    </form>
+                                    <span th:if="${u.id == admin.id}" class="badge badge-green">Active (You)</span>
+                                </td>
+                                <td style="min-width: 160px;">
+                                    <form th:if="${u.id != admin.id}" th:action="@{/admin/users/{id}/role(id=${u.id})}" method="post" style="display: flex; gap: 4px;">
+                                        <select name="role" class="form-control" style="font-size: 0.8rem; padding: 3px 6px;">
+                                            <option th:each="r : ${roles}" th:value="${r}" th:text="${r.displayName}"
+                                                    th:selected="${u.role == r}">Role</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary btn-sm" style="padding: 3px 6px; font-size: 0.75rem;">Set</button>
+                                    </form>
+                                    <span th:if="${u.id == admin.id}" style="color: var(--text-light); font-size: 0.75rem;">System Owner</span>
+                                </td>
+                                <td style="text-align: right;">
+                                    <form th:if="${u.id != admin.id}" th:action="@{/admin/users/{id}/delete(id=${u.id})}" method="post" style="display:inline;"
+                                          onsubmit="return confirm('Are you sure you want to permanently delete this account?');">
+                                        <button type="submit" class="btn btn-outline-danger" style="padding: 3px 6px; font-size: 0.75rem;">🗑 Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

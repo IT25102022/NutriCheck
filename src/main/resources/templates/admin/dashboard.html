@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin Dashboard - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">
+                        👑 System Administration Panel
+                    </h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Master control center for user provisioning, clinical records oversight, and system analytics.</p>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <a th:href="@{/admin/users}" class="btn btn-primary btn-sm">👥 Manage Users</a>
+                    <a th:href="@{/admin/health-records}" class="btn btn-outline btn-sm">🩺 Health Records</a>
+                    <a th:href="@{/admin/diet-plans}" class="btn btn-outline btn-sm">🥗 Diet Plans</a>
+                    <a th:href="@{/admin/appointments}" class="btn btn-secondary btn-sm">📅 Appointments</a>
+                    <a th:href="@{/admin/feedback}" class="btn btn-outline btn-sm">💬 Feedback</a>
+                </div>
+            </div>
+
+            <!-- Master 6-Module CRUD Control Grid -->
+            <div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--primary);">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">🎛️ Admin Control Center</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Direct oversight &amp; management</p>
+                    </div>
+                    <span class="badge badge-green">All Systems Operational</span>
+                </div>
+                <div class="grid-cols-3" style="gap: 1rem; margin-top: 0.5rem;">
+                    <!-- Module 1 -->
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <strong style="font-size: 0.9rem; color: var(--text-main);">1. User &amp; Auth (RBAC)</strong>
+                            <span class="badge badge-green" style="font-size: 0.7rem;">Active</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">User accounts, BCrypt passwords &amp; role allocation.</p>
+                        <div style="display: flex; gap: 6px;">
+                            <a th:href="@{/admin/users}" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 4px 8px;">👥 Manage Users</a>
+                        </div>
+                    </div>
+
+                    <!-- Module 2 -->
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <strong style="font-size: 0.9rem; color: var(--text-main);">2. BMI &amp; Classification</strong>
+                            <span class="badge badge-green" style="font-size: 0.7rem;"> Active</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">WHO formulas, distribution stats &amp; historical curves.</p>
+                        <div style="display: flex; gap: 6px;">
+                            <a th:href="@{/bmi-calculator}" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 4px 8px;">🧮 BMI Tool</a>
+                        </div>
+                    </div>
+
+                    <!-- Module 3 -->
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <strong style="font-size: 0.9rem; color: var(--text-main);">3. Patient Health Vitals</strong>
+                            <span class="badge badge-green" style="font-size: 0.7rem;">Active</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">BP, blood glucose, cholesterol &amp; vitals logs.</p>
+                        <div style="display: flex; gap: 6px;">
+                            <a th:href="@{/admin/health-records}" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 4px 8px;">🩺 Health Logs</a>
+                        </div>
+                    </div>
+
+                    <!-- Module 4 -->
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <strong style="font-size: 0.9rem; color: var(--text-main);">4. Diet Recommendations</strong>
+                            <span class="badge badge-green" style="font-size: 0.7rem;"> Active</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Rule-based dietary matching &amp; calorie regimens.</p>
+                        <div style="display: flex; gap: 6px;">
+                            <a th:href="@{/admin/diet-plans}" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 4px 8px;">🥗 Master Diets</a>
+                        </div>
+                    </div>
+
+                    <!-- Module 5 -->
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <strong style="font-size: 0.9rem; color: var(--text-main);">5. Appointments &amp; Doctors</strong>
+                            <span class="badge badge-green" style="font-size: 0.7rem;">Active</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Booking engine, conflict checker &amp; clinical status.</p>
+                        <div style="display: flex; gap: 6px;">
+                            <a th:href="@{/admin/appointments}" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 4px 8px;">📅 Master Schedule</a>
+                        </div>
+                    </div>
+
+                    <!-- Module 6 -->
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <strong style="font-size: 0.9rem; color: var(--text-main);">6. Feedback Oversight</strong>
+                            <span class="badge badge-green" style="font-size: 0.7rem;">Live Data</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Patient reviews, system improvements &amp; resolutions.</p>
+                        <div style="display: flex; gap: 6px;">
+                            <a th:href="@{/admin/feedback}" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 4px 8px;">💬 Feedback Panel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Main KPI Stat Cards -->
+            <div class="grid-cols-4" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-icon green">👥</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Users</span>
+                        <span class="stat-value" th:text="${stats.totalUsers}">5</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);"
+                              th:text="${stats.totalPatients + ' Patients, ' + stats.totalNutritionists + ' Nutritionists'}">Breakdown</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon gold">📅</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Appointments</span>
+                        <span class="stat-value" th:text="${stats.totalAppointments}">3</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);"
+                              th:text="${stats.pendingAppointments + ' Pending, ' + stats.confirmedAppointments + ' Confirmed'}">Breakdown</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon blue">🩺</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Health &amp; Diets</span>
+                        <span class="stat-value" th:text="${stats.totalHealthRecords + ' Logs'}">5 Logs</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);"
+                              th:text="${stats.totalDietPlans + ' Diet Plans'}">4 Diets</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon rose">💬</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Patient Feedback</span>
+                        <span class="stat-value" th:text="${stats.totalFeedback}">0</span>
+                        <span style="font-size: 0.75rem; color: var(--gold); font-weight: 600;"
+                              th:text="${stats.newFeedback + ' Pending Review'}">0 Pending</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid-cols-2" style="margin-bottom: 2rem;">
+                <!-- BMI Distribution Donut Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📊 Population BMI Distribution</h2>
+                    </div>
+                    <div style="position: relative; height: 240px;">
+                        <canvas id="bmiDistChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Appointment Status Bar Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📈 Consultation Status Breakdown</h2>
+                    </div>
+                    <div style="position: relative; height: 240px;">
+                        <canvas id="apptStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Users Quick View Table -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">👥 Registered Users Overview</h2>
+                    <a th:href="@{/admin/users}" class="btn btn-outline btn-sm">Full User Directory &rarr;</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Full Name</th>
+                                <th>Username / Email</th>
+                                <th>Role</th>
+                                <th>Member Since</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="u : ${recentUsers}">
+                                <td th:text="${'#' + u.id}">#1</td>
+                                <td><strong th:text="${u.fullName}">Name</strong></td>
+                                <td>
+                                    <span th:text="${u.username}">username</span><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${u.email}">email</span>
+                                </td>
+                                <td>
+                                    <span th:if="${u.role.name() == 'ROLE_ADMIN'}" class="badge badge-rose">👑 Admin</span>
+                                    <span th:if="${u.role.name() == 'ROLE_HEALTHCARE_PROFESSIONAL'}" class="badge badge-purple">⚕️ Healthcare Pro</span>
+                                    <span th:if="${u.role.name() == 'ROLE_NUTRITIONIST'}" class="badge badge-blue">🩺 Nutritionist</span>
+                                    <span th:if="${u.role.name() == 'ROLE_PATIENT'}" class="badge badge-green">👤 Patient</span>
+                                </td>
+                                <td th:text="${#temporals.format(u.createdAt, 'MMM dd, yyyy')}">Date</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const bmiDist = /*[[${stats.bmiDistribution}]]*/ {};
+        const bmiLabels = Object.keys(bmiDist);
+        const bmiCounts = Object.values(bmiDist);
+
+        const ctxBmi = document.getElementById('bmiDistChart').getContext('2d');
+        new Chart(ctxBmi, {
+            type: 'doughnut',
+            data: {
+                labels: bmiLabels,
+                datasets: [{
+                    data: bmiCounts,
+                    backgroundColor: ['#38bdf8', '#10b981', '#f59e0b', '#fb7185']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        const pending = /*[[${stats.pendingAppointments}]]*/ 0;
+        const confirmed = /*[[${stats.confirmedAppointments}]]*/ 0;
+        const completed = /*[[${stats.completedAppointments}]]*/ 0;
+        const cancelled = /*[[${stats.cancelledAppointments}]]*/ 0;
+
+        const ctxAppt = document.getElementById('apptStatusChart').getContext('2d');
+        new Chart(ctxAppt, {
+            type: 'bar',
+            data: {
+                labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
+                datasets: [{
+                    label: 'Appointments',
+                    data: [pending, confirmed, completed, cancelled],
+                    backgroundColor: ['#f59e0b', '#10b981', '#0284c7', '#fb7185'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+        /*]]>*/
+    </script>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

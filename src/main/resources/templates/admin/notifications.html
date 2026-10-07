@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Notification Management - NutriCheck Admin')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">🔔 Notification Management</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Send targeted alerts, broadcast announcements, and manage system notification records.</p>
+                </div>
+                <a th:href="@{/admin/dashboard}" class="btn btn-outline btn-sm">&larr; Back to Admin Dashboard</a>
+            </div>
+
+            <!-- Compose New Notification Card -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">✉️ Compose &amp; Send Notification</h2>
+                </div>
+                <form th:action="@{/admin/notifications/create}" method="post">
+                    <div class="grid-cols-3">
+                        <div class="form-group">
+                            <label class="form-label">Audience / Target *</label>
+                            <select name="targetType" id="targetTypeSelect" class="form-control" onchange="toggleRecipientSelect()" required>
+                                <option value="USER">Specific Individual User</option>
+                                <option value="PATIENTS">All Registered Patients</option>
+                                <option value="NUTRITIONISTS">All Nutritionists</option>
+                                <option value="ALL">All Active Users (System-wide)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="userSelectGroup">
+                            <label class="form-label">Select Recipient *</label>
+                            <select name="userId" id="userSelectInput" class="form-control">
+                                <option value="">-- Choose a User --</option>
+                                <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.fullName + ' (' + u.role.displayName + ' - ' + u.email + ')'}">
+                                    John Doe
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Notification Type *</label>
+                            <select name="type" class="form-control" required>
+                                <option th:each="t : ${types}" th:value="${t}" th:text="${t.displayName}">Type</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notification Title *</label>
+                        <input type="text" name="title" class="form-control" required maxlength="150"
+                               placeholder="e.g. Scheduled System Maintenance, Clinical Reminder...">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Message Content *</label>
+                        <textarea name="message" class="form-control" rows="3" required
+                                  placeholder="Write the notification message here..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.25rem;">
+                        🚀 Dispatch Notification
+                    </button>
+                </form>
+            </div>
+
+            <!-- Sent Notifications Directory Card -->
+            <div class="card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 class="card-title">📋 Sent Notifications Directory</h2>
+                    <span class="badge badge-blue" th:text="${notifications.size() + ' Total'}">0 Total</span>
+                </div>
+
+                <div th:if="${notifications == null or notifications.isEmpty()}" style="text-align: center; padding: 2.5rem 0; color: var(--text-muted);">
+                    <p>No notifications have been dispatched yet.</p>
+                </div>
+
+                <div class="table-responsive" th:if="${notifications != null and !notifications.isEmpty()}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 160px;">Sent Date</th>
+                                <th style="width: 200px;">Recipient</th>
+                                <th style="width: 120px;">Type</th>
+                                <th>Title &amp; Message</th>
+                                <th style="width: 120px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="n : ${notifications}">
+                                <td>
+                                    <strong th:text="${#temporals.format(n.createdAt, 'MMM dd, yyyy')}">Date</strong><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${#temporals.format(n.createdAt, 'hh:mm a')}">Time</span>
+                                </td>
+                                <td>
+                                    <strong th:text="${n.recipient.fullName}">Name</strong><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${n.recipient.email}">email</span><br/>
+                                    <span style="font-size: 0.75rem; color: var(--primary-dark); font-weight: 600;" th:text="${n.recipient.role.displayName}">Role</span>
+                                </td>
+                                <td>
+                                    <span th:class="'badge ' + ${n.type.badgeClass}" th:text="${n.type.displayName}">Type</span>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px;" th:text="${n.title}">Title</div>
+                                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.5; white-space: pre-line;" th:text="${n.message}">Message</p>
+                                </td>
+                                <td>
+                                    <span th:if="${n.isRead}" class="badge badge-green">✓ Read</span>
+                                    <span th:if="${!n.isRead}" class="badge badge-amber">Unread</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        function toggleRecipientSelect() {
+            const targetType = document.getElementById('targetTypeSelect').value;
+            const group = document.getElementById('userSelectGroup');
+            const input = document.getElementById('userSelectInput');
+            if (targetType === 'USER') {
+                group.style.display = 'block';
+                input.required = true;
+            } else {
+                group.style.display = 'none';
+                input.required = false;
+            }
+        }
+    </script>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
