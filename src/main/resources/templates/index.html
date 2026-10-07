@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriCheck - Clinical Health &amp; Diet Management</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/favicon.svg}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Custom Base CSS -->
+    <link rel="stylesheet" th:href="@{/css/nutricheck.css}">
+    <!-- Cinematic Scrollytelling Engine CSS -->
+    <link rel="stylesheet" th:href="@{/css/scrollytelling.css}">
+    <!-- Global JS (Theme Initialization) -->
+    <script th:src="@{/js/nutricheck.js}"></script>
+</head>
+<body>
+
+    <!-- Scroll Progress Indicator -->
+    <div class="scrolly-progress-bar" id="scrollyProgressBar"></div>
+
+    <!-- Right Scrollytelling Chapter Scrubber Navigation -->
+    <nav class="scrolly-nav-scrubber" aria-label="Story Chapter Navigation">
+        <button type="button" class="scrubber-dot active" data-chapter="0" aria-label="Health Vitals Chapter">
+            <span class="scrubber-tooltip">01. Health Vitals</span>
+        </button>
+        <button type="button" class="scrubber-dot" data-chapter="1" aria-label="BMI Tracking Chapter">
+            <span class="scrubber-tooltip">02. BMI Tracking</span>
+        </button>
+        <button type="button" class="scrubber-dot" data-chapter="2" aria-label="Diet Plans Chapter">
+            <span class="scrubber-tooltip">03. Tailored Diets</span>
+        </button>
+        <button type="button" class="scrubber-dot" data-chapter="3" aria-label="Consultations Chapter">
+            <span class="scrubber-tooltip">04. Consultations</span>
+        </button>
+        <button type="button" class="scrubber-dot" data-chapter="4" aria-label="Alerts Chapter">
+            <span class="scrubber-tooltip">05. Live Alerts</span>
+        </button>
+        <button type="button" class="scrubber-dot" data-chapter="5" aria-label="Get Started Chapter">
+            <span class="scrubber-tooltip">06. Get Started</span>
+        </button>
+    </nav>
+
+    <!-- Global Layout Navbar -->
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content" style="padding: 0;">
+
+        <!-- ==================================================================
+             CINEMATIC SCROLLYTELLING CONTAINER
+             Continuous Visual Transformation Stage
+             ================================================================== -->
+        <section class="scrolly-wrapper" id="scrollySection">
+            <div class="scrolly-track">
+                <div class="scrolly-viewport">
+
+                    <!-- Ambient Atmospheric Backdrops -->
+                    <div class="ambient-glow ambient-glow-1"></div>
+                    <div class="ambient-glow ambient-glow-2"></div>
+                    <div class="ambient-grid"></div>
+
+                    <!-- 3D Bio-Scene: particle DNA helix, molecular network & bokeh (decorative) -->
+                    <canvas class="bio-canvas" id="bioCanvas" aria-hidden="true"></canvas>
+
+                    <!-- Dual Column Story Stage -->
+                    <div class="scrolly-stage-container">
+
+                        <!-- --------------------------------------------------
+                             LEFT: SYNCHRONIZED NARRATIVE CHAPTERS
+                             -------------------------------------------------- -->
+                        <div class="narrative-track">
+
+                            <!-- Chapter 1: UNDERSTAND (Health Profile & Vitals) -->
+                            <article class="narrative-chapter active" id="chapter-0">
+                                <div class="chapter-badge">
+                                    <span class="badge-dot"></span>
+                                    <span>01 / Health Vitals &amp; Profile</span>
+                                </div>
+                                <h1 class="chapter-title">
+                                    Understand Your <br/>
+                                    <span class="highlight-green">Complete Health</span> Profile
+                                </h1>
+                                <p class="chapter-desc">
+                                    Log and monitor essential clinical vitals — blood pressure, glucose levels, cholesterol, height, and weight — in a structured patient record.
+                                </p>
+                                <div class="chapter-features">
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Continuous blood pressure and glucose tracking</span>
+                                    </div>
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Secure records accessible to your nutritionist</span>
+                                    </div>
+                                </div>
+                                <div class="chapter-actions">
+                                    <a sec:authorize="isAnonymous()" th:href="@{/register}" class="btn btn-primary">Create Free Account</a>
+                                    <a th:href="@{/bmi-calculator}" class="btn btn-outline">Free BMI Check</a>
+                                    <a sec:authorize="hasRole('PATIENT')" th:href="@{/patient/dashboard}" class="btn btn-primary">Open Patient Dashboard &rarr;</a>
+                                </div>
+                            </article>
+
+                            <!-- Chapter 2: TRACK (Precision BMI Evaluation) -->
+                            <article class="narrative-chapter" id="chapter-1">
+                                <div class="chapter-badge">
+                                    <span class="badge-dot"></span>
+                                    <span>02 / Precision BMI Evaluation</span>
+                                </div>
+                                <h2 class="chapter-title">
+                                    Track Body Mass Index <br/>
+                                    <span class="highlight-green">With WHO Standards</span>
+                                </h2>
+                                <p class="chapter-desc">
+                                    Calculated with mathematical precision using your height, weight, and age. Instant WHO classification with independent tracking and history.
+                                </p>
+                                <div class="chapter-features">
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Underweight, Normal, Overweight, and Obese tiers</span>
+                                    </div>
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Complete longitudinal history with full tracking control</span>
+                                    </div>
+                                </div>
+                                <div class="chapter-actions">
+                                    <a th:href="@{/bmi-calculator}" class="btn btn-primary">Calculate BMI Now</a>
+                                    <a sec:authorize="isAnonymous()" th:href="@{/register}" class="btn btn-outline">Start Tracking</a>
+                                </div>
+                            </article>
+
+                            <!-- Chapter 3: NOURISH (Rule-Based Diet Plans) -->
+                            <article class="narrative-chapter" id="chapter-2">
+                                <div class="chapter-badge">
+                                    <span class="badge-dot"></span>
+                                    <span>03 / Tailored Nutrition Plans</span>
+                                </div>
+                                <h2 class="chapter-title">
+                                    Nourish Your Body <br/>
+                                    <span class="highlight-secondary">With Targeted Diets</span>
+                                </h2>
+                                <p class="chapter-desc">
+                                    Curated dietary blueprints specifically mapped to your BMI tier and nutritional goals — from gradual weight management to balanced maintenance.
+                                </p>
+                                <div class="chapter-features">
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Diets curated by licensed clinical dietitians</span>
+                                    </div>
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Automated recommendations based on latest BMI</span>
+                                    </div>
+                                </div>
+                                <div class="chapter-actions">
+                                    <a sec:authorize="isAnonymous()" th:href="@{/register}" class="btn btn-primary">Browse Diet Plans</a>
+                                    <a sec:authorize="hasRole('PATIENT')" th:href="@{/patient/diet-plans}" class="btn btn-primary">View Recommended Diets</a>
+                                </div>
+                            </article>
+
+                            <!-- Chapter 4: CONNECT (Nutritionist Consultations) -->
+                            <article class="narrative-chapter" id="chapter-3">
+                                <div class="chapter-badge">
+                                    <span class="badge-dot"></span>
+                                    <span>04 / Clinical Consultations</span>
+                                </div>
+                                <h2 class="chapter-title">
+                                    Connect With Licensed <br/>
+                                    <span class="highlight-green">Nutrition Specialists</span>
+                                </h2>
+                                <p class="chapter-desc">
+                                    Book 1-on-1 consultations with registered nutritionists, manage appointments with conflict protection, and review clinical feedback notes.
+                                </p>
+                                <div class="chapter-features">
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Automated double-booking conflict prevention</span>
+                                    </div>
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Direct review notes and personalized nutrition guidance</span>
+                                    </div>
+                                </div>
+                                <div class="chapter-actions">
+                                    <a sec:authorize="isAnonymous()" th:href="@{/register}" class="btn btn-primary">Book Consultation</a>
+                                    <a sec:authorize="hasRole('PATIENT')" th:href="@{/patient/appointments}" class="btn btn-primary">Manage Appointments</a>
+                                </div>
+                            </article>
+
+                            <!-- Chapter 5: STAY INFORMED (Real-time Alerts) -->
+                            <article class="narrative-chapter" id="chapter-4">
+                                <div class="chapter-badge">
+                                    <span class="badge-dot"></span>
+                                    <span>05 / Timely Alerts &amp; Updates</span>
+                                </div>
+                                <h2 class="chapter-title">
+                                    Stay Informed With <br/>
+                                    <span class="highlight-secondary">Immediate Alerts</span>
+                                </h2>
+                                <p class="chapter-desc">
+                                    Receive real-time notifications for appointment requests, confirmations, schedule changes, and clinic announcements.
+                                </p>
+                                <div class="chapter-features">
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Immediate appointment status notification triggers</span>
+                                    </div>
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Strict recipient isolation and privacy control</span>
+                                    </div>
+                                </div>
+                                <div class="chapter-actions">
+                                    <a sec:authorize="isAnonymous()" th:href="@{/register}" class="btn btn-primary">Join NutriCheck</a>
+                                    <a sec:authorize="isAuthenticated()" th:href="@{/patient/notifications}" class="btn btn-primary">View My Alerts</a>
+                                </div>
+                            </article>
+
+                            <!-- Chapter 6: START (Call to Action) -->
+                            <article class="narrative-chapter" id="chapter-5">
+                                <div class="chapter-badge">
+                                    <span class="badge-dot"></span>
+                                    <span>06 / Begin Your Journey</span>
+                                </div>
+                                <h2 class="chapter-title">
+                                    Take Control Of <br/>
+                                    <span class="highlight-green">Your Health Today</span>
+                                </h2>
+                                <p class="chapter-desc">
+                                    Join patients and nutritionists managing dietary goals, health metrics, and clinical appointments on NutriCheck.
+                                </p>
+                                <div class="chapter-features">
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Free, instant, secure registration</span>
+                                    </div>
+                                    <div class="chapter-feature-item">
+                                        <span class="feature-icon-circle">✓</span>
+                                        <span>Complete health and nutrition tracking tools</span>
+                                    </div>
+                                </div>
+                                <div class="chapter-actions">
+                                    <a sec:authorize="isAnonymous()" th:href="@{/register}" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 1rem;">Get Started Free</a>
+                                    <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-outline" style="padding: 0.75rem 1.25rem;">Sign In</a>
+                                </div>
+                            </article>
+
+                        </div>
+
+                        <!-- --------------------------------------------------
+                             RIGHT: DYNAMIC MORPHING VISUAL STAGE
+                             -------------------------------------------------- -->
+                        <div class="stage-track">
+                            <div class="morph-console">
+
+                                <div class="console-header-bar">
+                                    <div class="console-dots">
+                                        <div class="console-dot"></div>
+                                        <div class="console-dot"></div>
+                                        <div class="console-dot"></div>
+                                    </div>
+                                    <div class="console-title-tag">
+                                        <span class="live-indicator-dot"></span>
+                                        <span>NutriCheck Health Console</span>
+                                    </div>
+                                    <span class="badge badge-green" style="font-size: 0.72rem;">Active</span>
+                                </div>
+
+                                <div class="console-viewport">
+
+                                    <!-- LAYER 1: Health Profile & Vitals (UNDERSTAND) -->
+                                    <div class="visual-layer layer-understand">
+                                        <div class="vitals-grid">
+                                            <div class="vital-metric-card">
+                                                <span class="vital-label">Blood Pressure</span>
+                                                <span class="vital-value">118/78</span>
+                                                <span class="vital-status-pill badge-green">Optimal</span>
+                                            </div>
+                                            <div class="vital-metric-card">
+                                                <span class="vital-label">Blood Glucose</span>
+                                                <span class="vital-value">92 mg/dL</span>
+                                                <span class="vital-status-pill badge-green">Normal Fasting</span>
+                                            </div>
+                                            <div class="vital-metric-card">
+                                                <span class="vital-label">Total Cholesterol</span>
+                                                <span class="vital-value">175 mg/dL</span>
+                                                <span class="vital-status-pill badge-green">Desirable</span>
+                                            </div>
+                                            <div class="vital-metric-card">
+                                                <span class="vital-label">Weight &amp; Height</span>
+                                                <span class="vital-value">70 kg &bull; 175 cm</span>
+                                                <span class="vital-status-pill badge-green">Logged Today</span>
+                                            </div>
+                                        </div>
+                                        <div class="vital-footer-strip">
+                                            <span>Comprehensive Health Record</span>
+                                            <span>Age 28 &bull; Verified</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- LAYER 2: Precision BMI Progress (TRACK) -->
+                                    <div class="visual-layer layer-track">
+                                        <div class="bmi-hero-card">
+                                            <span class="vital-label">Current Calculated BMI</span>
+                                            <div class="bmi-hero-score">22.86</div>
+                                            <span class="badge badge-green" style="font-size: 0.9rem; padding: 4px 14px;">Normal Weight</span>
+                                            <div class="bmi-spectrum-bar">
+                                                <div class="bmi-spectrum-marker"></div>
+                                            </div>
+                                            <div class="bmi-tier-labels">
+                                                <span>Underweight (&lt;18.5)</span>
+                                                <span>Healthy (18.5-24.9)</span>
+                                                <span>Overweight (25-29.9)</span>
+                                                <span>Obese (30+)</span>
+                                            </div>
+                                        </div>
+                                        <div class="vital-footer-strip">
+                                            <span>Healthy Weight Range: 56.7 – 76.3 kg</span>
+                                            <span>Quetelet Standard</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- LAYER 3: Tailored Nutrition Plans (NOURISH) -->
+                                    <div class="visual-layer layer-nourish">
+                                        <div class="diet-plan-stage-card">
+                                            <div class="diet-plan-title-row">
+                                                <span class="diet-plan-name">Balanced Mediterranean Plan</span>
+                                                <span class="badge badge-green">Normal Weight</span>
+                                            </div>
+                                            <p class="diet-plan-summary">
+                                                Rich in whole grains, extra virgin olive oil, lean proteins, and antioxidant-rich vegetables.
+                                            </p>
+                                            <div class="diet-macro-tags">
+                                                <span class="macro-tag">2,100 kcal/day</span>
+                                                <span class="macro-tag">50% Carbs</span>
+                                                <span class="macro-tag">25% Protein</span>
+                                                <span class="macro-tag">25% Healthy Fats</span>
+                                            </div>
+                                        </div>
+                                        <div class="vital-footer-strip">
+                                            <span>Matched to BMI Tier: Normal Weight</span>
+                                            <span th:text="${dietPlansCount != null ? dietPlansCount + ' Active Plans' : 'Active Plans'}">6 Plans</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- LAYER 4: Consultations & Appointments (CONNECT) -->
+                                    <div class="visual-layer layer-connect">
+                                        <div class="consultation-stage-card">
+                                            <div class="specialist-profile-header">
+                                                <div class="specialist-avatar-box">🩺</div>
+                                                <div class="specialist-info">
+                                                    <h4>Dr. Sarah Jenkins</h4>
+                                                    <p>Licensed Clinical Dietitian &bull; RD-12345</p>
+                                                </div>
+                                            </div>
+                                            <div class="appointment-slot-pill">
+                                                <div>
+                                                    <strong style="color: var(--text-main); font-size: 0.9rem;">Upcoming Consultation</strong><br/>
+                                                    <span style="color: var(--text-muted); font-size: 0.8rem;">Thursday at 10:30 AM</span>
+                                                </div>
+                                                <span class="badge badge-green">Confirmed</span>
+                                            </div>
+                                        </div>
+                                        <div class="vital-footer-strip" style="margin-top: 1rem;">
+                                            <span>Protected Slot Scheduling</span>
+                                            <span>Conflict-Free</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- LAYER 5: Real-Time Alerts (STAY INFORMED) -->
+                                    <div class="visual-layer layer-inform">
+                                        <div class="notifications-stream">
+                                            <div class="notification-alert-item">
+                                                <div class="notification-icon-box">📅</div>
+                                                <div class="notification-body">
+                                                    <h5>Consultation Confirmed</h5>
+                                                    <p>Your appointment with Dr. Sarah Jenkins is confirmed for Thursday at 10:30 AM.</p>
+                                                </div>
+                                            </div>
+                                            <div class="notification-alert-item">
+                                                <div class="notification-icon-box">🥗</div>
+                                                <div class="notification-body">
+                                                    <h5>New Diet Plan Recommendation</h5>
+                                                    <p>A new Mediterranean Diet plan has been added for Normal Weight patients.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="vital-footer-strip" style="margin-top: 1rem;">
+                                            <span>Real-Time Alert Dispatch</span>
+                                            <span>Instant Delivery</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- LAYER 6: Platform Summary & CTA (START) -->
+                                    <div class="visual-layer layer-start">
+                                        <div class="start-stage-card">
+                                            <div class="start-hub-logo-box">
+                                                <img th:src="@{/images/logo.svg}" alt="NutriCheck Official Logo" class="start-hub-brand-img">
+                                            </div>
+                                            <h3 class="start-hub-title">Unified Healthcare Platform</h3>
+                                            <p class="start-hub-desc">
+                                                Everything you need to evaluate BMI, log health vitals, follow curated diet regimens, and consult licensed dietitians.
+                                            </p>
+                                            <div class="start-hub-badges">
+                                                <span class="badge badge-green">WHO Standard</span>
+                                                <span class="badge badge-secondary">Confidential</span>
+                                                <span class="badge badge-amber">Clinical Support</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             SUPPORTIVE FEATURE PILLARS SECTION (Below Scrollytelling Track)
+             ================================================================== -->
+        <section class="landing-feature-showcase">
+            <div class="container">
+                <div class="landing-feature-header">
+                    <span class="badge badge-green" style="margin-bottom: 0.75rem;">Core Modules</span>
+                    <h2>Six Integrated Health Management Pillars</h2>
+                    <p>Designed to empower patients, licensed nutritionists, and administrators in one unified platform.</p>
+                </div>
+
+                <div class="grid-cols-3" style="margin-bottom: 3.5rem;">
+                    <div class="feature-pillar-card">
+                        <div class="feature-pillar-icon">📊</div>
+                        <h3 class="feature-pillar-title">Precision BMI Tracking</h3>
+                        <p class="feature-pillar-desc">
+                            Automated standard WHO classification with historical trend charting, age integration, and independent record management.
+                        </p>
+                    </div>
+
+                    <div class="feature-pillar-card">
+                        <div class="feature-pillar-icon">🥗</div>
+                        <h3 class="feature-pillar-title">Rule-Based Diet Plans</h3>
+                        <p class="feature-pillar-desc">
+                            Structured dietary blueprints curated by clinical nutritionists, tailored specifically to target BMI categories.
+                        </p>
+                    </div>
+
+                    <div class="feature-pillar-card">
+                        <div class="feature-pillar-icon">📅</div>
+                        <h3 class="feature-pillar-title">Appointment Scheduling</h3>
+                        <p class="feature-pillar-desc">
+                            Book and manage consultations with registered nutritionists, featuring automated double-booking prevention.
+                        </p>
+                    </div>
+
+                    <div class="feature-pillar-card">
+                        <div class="feature-pillar-icon">🩺</div>
+                        <h3 class="feature-pillar-title">Health Records &amp; Vitals</h3>
+                        <p class="feature-pillar-desc">
+                            Keep continuous records of vital measurements including blood pressure, blood glucose, cholesterol levels, and body weight.
+                        </p>
+                    </div>
+
+                    <div class="feature-pillar-card">
+                        <div class="feature-pillar-icon">💬</div>
+                        <h3 class="feature-pillar-title">Feedback Management</h3>
+                        <p class="feature-pillar-desc">
+                            Direct patient feedback submission and administrative review notes for continuous service quality enhancement.
+                        </p>
+                    </div>
+
+                    <div class="feature-pillar-card">
+                        <div class="feature-pillar-icon">🔔</div>
+                        <h3 class="feature-pillar-title">Real-Time Alerts</h3>
+                        <p class="feature-pillar-desc">
+                            Real-time clinical notification system keeping patients and nutritionists updated on appointments and clinical milestones.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- WHO Reference Table Strip -->
+                <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2.5rem 2rem;">
+                    <h3 style="text-align: center; font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--text-main);">
+                        World Health Organization (WHO) BMI Reference Standards
+                    </h3>
+                    <div class="grid-cols-4">
+                        <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: var(--radius-md); text-align: center;">
+                            <span class="badge badge-sky">Below 18.5</span>
+                            <h4 style="margin: 0.5rem 0; color: var(--text-main); font-weight: 700;">Underweight</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">Calorie surplus and nutrient-dense foods recommended.</p>
+                        </div>
+                        <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: var(--radius-md); text-align: center;">
+                            <span class="badge badge-green">18.5 – 24.9</span>
+                            <h4 style="margin: 0.5rem 0; color: var(--text-main); font-weight: 700;">Normal Weight</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">Balanced nutrition and regular physical activity.</p>
+                        </div>
+                        <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: var(--radius-md); text-align: center;">
+                            <span class="badge badge-amber">25.0 – 29.9</span>
+                            <h4 style="margin: 0.5rem 0; color: var(--text-main); font-weight: 700;">Overweight</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">Moderate calorie deficit and consistent activity.</p>
+                        </div>
+                        <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: var(--radius-md); text-align: center;">
+                            <span class="badge badge-rose">30.0 &amp; Above</span>
+                            <h4 style="margin: 0.5rem 0; color: var(--text-main); font-weight: 700;">Obese</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">Structured nutrition plan with professional supervision.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Global Layout Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    <!-- Scrollytelling Visual Engine Script -->
+    <script th:src="@{/js/scrollytelling.js}"></script>
+    <!-- 3D Bio-Scene Canvas Engine -->
+    <script th:src="@{/js/bio-scene.js}"></script>
+
+</body>
+</html>

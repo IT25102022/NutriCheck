@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('About - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container" style="max-width: 900px;">
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h1 class="card-title">🩺 Clinical Standards &amp; Healthcare Mission</h1>
+                </div>
+
+                <p style="margin-bottom: 1.25rem; font-size: 1.05rem; color: var(--text-main); line-height: 1.7;">
+                    <strong>NutriCheck</strong> is an integrated digital clinical platform designed to bridge preventive health analytics, chronic disease risk monitoring, and personalized dietary regimens. We empower patients and healthcare professionals to collaborate seamlessly on lifestyle and metabolic health.
+                </p>
+
+                <h3 style="margin: 1.5rem 0 0.75rem; color: var(--primary-dark);">🎯 Our Clinical Mission</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.7;">
+                    Metabolic health disorders, cardiovascular risks, and weight fluctuations require accurate, continuous biometric tracking and targeted dietary intervention. NutriCheck eliminates the guesswork by combining continuous vital monitoring with rule-matched medical nutrition therapy and certified clinical consultations.
+                </p>
+
+                <h3 style="margin: 1.5rem 0 0.75rem; color: var(--secondary-dark);">🔬 Core Medical &amp; Technical Pillars</h3>
+                <div class="grid-cols-2" style="gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">📊 WHO-Standard BMI Analytics</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Automated metric classification into clinical tiers (Underweight, Normal, Overweight, Obese) with longitudinal trend modeling.</p>
+                    </div>
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🥗 Medical Nutrition Matching</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Evidence-based dietary protocols with structured macronutrient breakdowns tailored to individual biometric parameters.</p>
+                    </div>
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🩺 Biometric Vitals Tracking</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Centralized logging for Blood Pressure (systolic/diastolic), Fasting Blood Glucose, and Total Cholesterol profiles.</p>
+                    </div>
+                    <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🔒 Multi-Tier Privacy &amp; Security</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Cryptographic password hashing, strict role-based data isolation, and protected clinical consultation scheduling.</p>
+                    </div>
+                </div>
+
+                <div style="background: var(--primary-subtle); border: 1px solid var(--primary-border); padding: 1.25rem; border-radius: var(--radius-sm); margin-top: 1rem;">
+                    <p style="font-size: 0.95rem; color: var(--primary-dark); font-weight: 600;">
+                        Ready to begin your personalized health journey?
+                    </p>
+                    <div style="margin-top: 0.75rem; display: flex; gap: 10px;">
+                        <a th:href="@{/bmi-calculator}" class="btn btn-primary btn-sm">Try Free BMI Tool</a>
+                        <a th:href="@{/register}" class="btn btn-secondary btn-sm">Create Patient Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

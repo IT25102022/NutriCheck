@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Patient Dashboard - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Welcome Banner -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <p id="dashDate" style="font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.35rem;">
+                        Patient Overview
+                    </p>
+                    <h1 style="font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-main);">
+                        <span id="dashGreeting">Hello</span>, <span th:text="${#strings.capitalize(#strings.arraySplit(user.fullName, ' ')[0])}">Patient</span>
+                    </h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Your latest health metrics, BMI status and diet recommendations at a glance.</p>
+                    <script>
+                        (function () {
+                            var now = new Date(), h = now.getHours();
+                            document.getElementById('dashGreeting').textContent =
+                                h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+                            document.getElementById('dashDate').textContent = 'Patient Overview \u00B7 ' +
+                                now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                        })();
+                    </script>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a th:href="@{/patient/health-records}" class="btn btn-primary btn-sm">Log Health Metric</a>
+                    <a th:href="@{/patient/appointments}" class="btn btn-secondary btn-sm">Book Consultation</a>
+                    <a th:href="@{/patient/feedback}" class="btn btn-outline btn-sm">Send Feedback</a>
+                </div>
+            </div>
+
+            <!-- 4 Key Stat Cards -->
+            <div class="grid-cols-4" style="margin-bottom: 2rem;">
+                <!-- Current BMI -->
+                <div class="stat-card">
+                    <div class="stat-icon green">⚖️</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Current BMI</span>
+                        <div class="stat-row">
+                            <span class="stat-value" th:text="${latestBmi != null ? latestBmi.bmiValue : 'N/A'}">22.5</span>
+                            <span th:if="${latestBmi != null}" th:class="'badge ' + ${latestBmi.bmiCategory.badgeClass}"
+                                  th:text="${latestBmi.bmiCategory.displayName}">Normal</span>
+                            <span th:if="${latestBmi == null}" class="badge badge-amber">No Log Yet</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Weight -->
+                <div class="stat-card">
+                    <div class="stat-icon blue">🏋️</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Latest Weight</span>
+                        <div class="stat-row">
+                            <span class="stat-value" th:text="${latestHealth != null ? latestHealth.weightKg + ' kg' : 'N/A'}">70 kg</span>
+                            <span class="stat-sub"
+                                  th:text="${latestHealth != null ? 'Height: ' + latestHealth.heightCm + ' cm' : 'Log your height/weight'}">Height info</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blood Pressure -->
+                <div class="stat-card">
+                    <div class="stat-icon rose">❤️</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Blood Pressure</span>
+                        <div class="stat-row">
+                            <span class="stat-value" th:text="${latestHealth != null ? latestHealth.bloodPressureText : 'N/A'}">120/80 mmHg</span>
+                            <span class="stat-sub"
+                                  th:text="${latestHealth != null and latestHealth.bloodSugar != null ? 'Sugar: ' + latestHealth.bloodSugar + ' mg/dL' : ''}">Sugar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Appointment -->
+                <div class="stat-card">
+                    <div class="stat-icon gold">🩺</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Appointments</span>
+                        <div class="stat-row">
+                            <span class="stat-value" th:text="${upcomingAppointments != null ? upcomingAppointments.size() : '0'}">1</span>
+                            <a th:href="@{/patient/appointments}" class="stat-link">View Schedule &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Column Main Grid -->
+            <div class="grid-cols-2">
+
+                <!-- Left: Rule-Based Diet Recommendations -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">🥗 Recommended Diet For You</h2>
+                        <a th:href="@{/patient/diet-plans}" class="btn btn-outline btn-sm">Explore All Diets</a>
+                    </div>
+
+                    <div th:if="${latestBmi != null}" style="margin-bottom: 1rem;">
+                        <div style="background: var(--primary-subtle); border-left: 4px solid var(--primary); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem;">
+                            <p style="font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px;">
+                                Rule-Based Match for BMI Tier: <span th:text="${latestBmi.bmiCategory.displayName}">Normal</span>
+                            </p>
+                            <p style="font-size: 0.85rem; color: var(--text-main);" th:text="${latestBmi.bmiCategory.recommendationSummary}">
+                                Recommendation message
+                            </p>
+                        </div>
+                    </div>
+
+                    <div th:if="${recommendedPlans == null or recommendedPlans.isEmpty()}">
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">No diet plans currently found. Please check back later.</p>
+                    </div>
+
+                    <div th:each="plan : ${recommendedPlans}" style="background: var(--bg-card-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                            <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main);" th:text="${plan.title}">Diet Plan Title</h3>
+                            <span class="badge badge-amber" th:text="${plan.dailyCalories != null ? plan.dailyCalories + ' kcal' : 'Standard'}">2000 kcal</span>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;" th:text="${plan.shortDescription}">Plan summary</p>
+                        <details style="font-size: 0.85rem; background: var(--bg-card-subtle); padding: 0.75rem; border-radius: var(--radius-sm);">
+                            <summary style="font-weight: 600; cursor: pointer; color: var(--secondary-dark);">View Sample Daily Meals</summary>
+                            <div style="white-space: pre-line; margin-top: 0.5rem; color: var(--text-main);" th:text="${plan.mealPlanDetails}"></div>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- Right: BMI History Chart & Quick Actions -->
+                <div>
+                    <!-- BMI Progress Preview Card -->
+                    <div class="card" style="margin-bottom: 1.5rem;">
+                        <div class="card-header">
+                            <h2 class="card-title">📈 BMI Progress Trend</h2>
+                            <a th:href="@{/patient/bmi-tracking}" class="btn btn-outline btn-sm">Full Analytics</a>
+                        </div>
+                        <div style="position: relative; height: 220px;">
+                            <canvas id="bmiTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Quick Log Metric Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">⚡ Quick Health Check Log</h2>
+                        </div>
+                        <form th:action="@{/patient/health-records}" th:object="${newHealthRecord}" method="post">
+                            <div class="grid-cols-2">
+                                <div class="form-group">
+                                    <label class="form-label">Height (cm)</label>
+                                    <input type="number" step="0.1" th:field="*{heightCm}" class="form-control" placeholder="175" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Weight (kg)</label>
+                                    <input type="number" step="0.1" th:field="*{weightKg}" class="form-control" placeholder="72.5" required>
+                                </div>
+                            </div>
+                            <div class="grid-cols-2">
+                                <div class="form-group">
+                                    <label class="form-label">Systolic BP (mmHg)</label>
+                                    <input type="number" th:field="*{systolicBp}" class="form-control" placeholder="120">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Diastolic BP (mmHg)</label>
+                                    <input type="number" th:field="*{diastolicBp}" class="form-control" placeholder="80">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+                                Save Metric &amp; Recalculate BMI
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Chart.js initialization script -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const bmiData = /*[[${bmiHistory}]]*/ [];
+        const labels = bmiData.map(item => {
+            const d = new Date(item.recordedAt);
+            return (d.getMonth()+1) + '/' + d.getDate();
+        });
+        const values = bmiData.map(item => item.bmiValue);
+
+        const ctx = document.getElementById('bmiTrendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.length > 0 ? labels : ['Today'],
+                datasets: [{
+                    label: 'BMI Trend',
+                    data: values.length > 0 ? values : [22.5],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#059669',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        min: 15,
+                        max: 35,
+                        grid: { color: '#f1f5f9' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+        /*]]>*/
+    </script>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

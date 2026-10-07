@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Patient Clinical History - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">
+                        🩺 Patient Consultation File &mdash; <span th:text="${patient.fullName}" style="color: var(--primary-dark);">Patient Name</span>
+                    </h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Review biometric history, BMI progression, and past consultation logs.</p>
+                </div>
+                <a th:href="@{/nutritionist/appointments}" class="btn btn-outline btn-sm">&larr; Back to Appointments</a>
+            </div>
+
+            <!-- Patient Demographics Summary -->
+            <div class="grid-cols-4" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-icon blue">👤</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Demographics</span>
+                        <strong th:text="${(patient.age != null ? patient.age + ' yrs' : 'Age N/A') + ', ' + (patient.gender != null ? patient.gender : 'N/A')}">30 yrs, Male</strong>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);" th:text="${'📞 ' + (patient.phone != null and !patient.phone.trim().isEmpty() ? patient.phone : 'No phone provided')}">📞 No phone provided</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">⚖️</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Current BMI</span>
+                        <span class="stat-value" th:text="${latestBmi != null ? latestBmi.bmiValue : 'N/A'}">22.5</span>
+                        <span th:if="${latestBmi != null}" th:class="'badge ' + ${latestBmi.bmiCategory.badgeClass}"
+                              th:text="${latestBmi.bmiCategory.displayName}">Normal</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon rose">📋</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Logs</span>
+                        <span class="stat-value" th:text="${healthRecords.size()}">4</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Biometric entries</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon gold">📅</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Consultations</span>
+                        <span class="stat-value" th:text="${appointments.size()}">2</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Bookings logged</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biometric History Table -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">📜 Biometric Health History</h2>
+                </div>
+
+                <div th:if="${healthRecords == null or healthRecords.isEmpty()}" style="text-align: center; padding: 2rem 0; color: var(--text-muted);">
+                    <p>No health measurements logged yet by this patient.</p>
+                </div>
+
+                <div class="table-responsive" th:if="${healthRecords != null and !healthRecords.isEmpty()}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Height</th>
+                                <th>Weight</th>
+                                <th>BMI</th>
+                                <th>Blood Pressure</th>
+                                <th>Blood Sugar</th>
+                                <th>Cholesterol</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="r : ${healthRecords}">
+                                <td style="font-weight: 600;" th:text="${#temporals.format(r.recordedAt, 'MMM dd, yyyy HH:mm')}">Date</td>
+                                <td th:text="${r.heightCm + ' cm'}">178 cm</td>
+                                <td th:text="${r.weightKg + ' kg'}">80 kg</td>
+                                <td>
+                                    <strong th:text="${r.calculatedBmi}">25.2</strong>
+                                    <span th:if="${r.bmiCategory != null}" th:class="'badge ' + ${r.bmiCategory.badgeClass}" style="margin-left: 4px;"
+                                          th:text="${r.bmiCategory.displayName}">Normal</span>
+                                </td>
+                                <td th:text="${r.bloodPressureText}">120/80</td>
+                                <td th:text="${r.bloodSugar != null ? r.bloodSugar + ' mg/dL' : '-'}">Sugar</td>
+                                <td th:text="${r.cholesterol != null ? r.cholesterol + ' mg/dL' : '-'}">Chol</td>
+                                <td style="font-size: 0.85rem; color: var(--text-muted);" th:text="${r.notes != null ? r.notes : '-'}">Notes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

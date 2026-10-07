@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Nutritionist Dashboard - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Welcome Banner -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">
+                        Consultation Portal &mdash; <span th:text="${nutritionist.fullName}" style="color: var(--secondary-dark);">Dr. Sarah Jenkins</span>
+                    </h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Manage patient consultation appointments, review health histories, and create custom diet plans.</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a th:href="@{/nutritionist/diet-plans}" class="btn btn-primary btn-sm">🥗 Create Diet Plan</a>
+                    <a th:href="@{/nutritionist/appointments}" class="btn btn-secondary btn-sm">📅 View Schedule</a>
+                </div>
+            </div>
+
+            <!-- Metric Stat Cards -->
+            <div class="grid-cols-3" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-icon gold">⏳</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Pending Appointments</span>
+                        <span class="stat-value" th:text="${pendingCount}">1</span>
+                        <span style="font-size: 0.8rem; color: var(--gold); font-weight: 600;">Requires confirmation</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Confirmed Sessions</span>
+                        <span class="stat-value" th:text="${confirmedCount}">2</span>
+                        <span style="font-size: 0.8rem; color: var(--primary-dark); font-weight: 600;">Upcoming</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon blue">🩺</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Completed Consultations</span>
+                        <span class="stat-value" th:text="${completedCount}">5</span>
+                        <span style="font-size: 0.8rem; color: var(--secondary-dark); font-weight: 600;">Historical</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointment Queue Table -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">📅 Patient Appointment Queue</h2>
+                    <a th:href="@{/nutritionist/appointments}" class="btn btn-outline btn-sm">Manage All Appointments</a>
+                </div>
+
+                <div th:if="${appointments == null or appointments.isEmpty()}" style="text-align: center; padding: 2.5rem 0; color: var(--text-muted);">
+                    <p>No appointments booked with you yet.</p>
+                </div>
+
+                <div class="table-responsive" th:if="${appointments != null and !appointments.isEmpty()}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; Time</th>
+                                <th>Patient Name</th>
+                                <th>Status</th>
+                                <th>Reason / Goals</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="a : ${appointments}">
+                                <td>
+                                    <strong th:text="${#temporals.format(a.appointmentDate, 'MMM dd, yyyy')}">Date</strong><br/>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);" th:text="${#temporals.format(a.appointmentTime, 'hh:mm a')}">Time</span>
+                                </td>
+                                <td>
+                                    <strong th:text="${a.patient.fullName}">John Doe</strong><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${a.patient.email}">email</span>
+                                </td>
+                                <td>
+                                    <span th:class="'badge ' + ${a.status.badgeClass}" th:text="${a.status.displayName}">Status</span>
+                                </td>
+                                <td style="font-size: 0.85rem; max-width: 250px;" th:text="${a.patientNotes != null ? a.patientNotes : '-'}">Notes</td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a th:href="@{/nutritionist/patient/{id}(id=${a.patient.id})}" class="btn btn-secondary btn-sm" title="View Patient Health History">
+                                            🩺 View Patient Health
+                                        </a>
+                                        <a th:href="@{/nutritionist/appointments}" class="btn btn-outline btn-sm">
+                                            Update Status
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

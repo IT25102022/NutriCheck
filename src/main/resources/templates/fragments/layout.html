@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- Head Fragment -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title != null ? title : 'NutriCheck - Clinical Diet &amp; Health Management'}">NutriCheck</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/favicon.svg}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/nutricheck.css}">
+    <!-- Global JS (Theme Initialization) -->
+    <script th:src="@{/js/nutricheck.js}"></script>
+</head>
+
+<body>
+
+    <!-- Navbar Fragment -->
+    <header class="navbar" th:fragment="navbar">
+        <div class="container navbar-inner">
+            <a th:href="@{/}" class="brand-logo">
+                <img th:src="@{/images/logo.svg}" alt="NutriCheck Health Logo" class="brand-img-logo">
+                <span class="brand-text">Nutri<span class="brand-highlight">Check</span></span>
+            </a>
+
+            <nav>
+                <ul class="nav-menu">
+                    <!-- Public Links (Only for guests) -->
+                    <li sec:authorize="isAnonymous()"><a th:href="@{/}" class="nav-link">Home</a></li>
+                    <li sec:authorize="isAnonymous()"><a th:href="@{/bmi-calculator}" class="nav-link">BMI Tool</a></li>
+                    <li sec:authorize="isAnonymous()"><a th:href="@{/about}" class="nav-link">About</a></li>
+
+                    <!-- Patient Links -->
+                    <li sec:authorize="hasRole('PATIENT')">
+                        <a th:href="@{/patient/dashboard}" class="nav-link">Dashboard</a>
+                    </li>
+                    <li sec:authorize="hasRole('PATIENT')">
+                        <a th:href="@{/patient/health-records}" class="nav-link">Health Records</a>
+                    </li>
+                    <li sec:authorize="hasRole('PATIENT')">
+                        <a th:href="@{/patient/bmi-tracking}" class="nav-link">BMI Progress</a>
+                    </li>
+                    <li sec:authorize="hasRole('PATIENT')">
+                        <a th:href="@{/patient/diet-plans}" class="nav-link">Diet Plans</a>
+                    </li>
+                    <li sec:authorize="hasRole('PATIENT')">
+                        <a th:href="@{/patient/appointments}" class="nav-link">Appointments</a>
+                    </li>
+                    <li sec:authorize="hasRole('PATIENT')">
+                        <a th:href="@{/patient/feedback}" class="nav-link">Feedback</a>
+                    </li>
+                    <li sec:authorize="hasRole('PATIENT')">
+                        <a th:href="@{/patient/notifications}" class="nav-link">Alerts</a>
+                    </li>
+
+                    <!-- Nutritionist Links -->
+                    <li sec:authorize="hasRole('NUTRITIONIST')">
+                        <a th:href="@{/nutritionist/dashboard}" class="nav-link">Dashboard</a>
+                    </li>
+                    <li sec:authorize="hasRole('NUTRITIONIST')">
+                        <a th:href="@{/nutritionist/appointments}" class="nav-link">Schedule</a>
+                    </li>
+                    <li sec:authorize="hasRole('NUTRITIONIST')">
+                        <a th:href="@{/nutritionist/diet-plans}" class="nav-link">Manage Diets</a>
+                    </li>
+                    <li sec:authorize="hasRole('NUTRITIONIST')">
+                        <a th:href="@{/nutritionist/notifications}" class="nav-link">Alerts</a>
+                    </li>
+
+                    <!-- Healthcare Professional Links -->
+                    <li sec:authorize="hasRole('HEALTHCARE_PROFESSIONAL')">
+                        <a th:href="@{/healthcare-professional/dashboard}" class="nav-link">Dashboard</a>
+                    </li>
+                    <li sec:authorize="hasRole('HEALTHCARE_PROFESSIONAL')">
+                        <a th:href="@{/healthcare-professional/diet-plans}" class="nav-link">Review Diets</a>
+                    </li>
+                    <li sec:authorize="hasRole('HEALTHCARE_PROFESSIONAL')">
+                        <a th:href="@{/healthcare-professional/appointments}" class="nav-link">Schedule</a>
+                    </li>
+                    <li sec:authorize="hasRole('HEALTHCARE_PROFESSIONAL')">
+                        <a th:href="@{/healthcare-professional/notifications}" class="nav-link">Alerts</a>
+                    </li>
+
+                    <!-- Admin Links -->
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/dashboard}" class="nav-link">Admin Panel</a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/users}" class="nav-link">Users</a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/health-records}" class="nav-link">Health Logs</a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/diet-plans}" class="nav-link">Diet Plans</a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/appointments}" class="nav-link">Appointments</a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/feedback}" class="nav-link">Feedback</a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/notifications}" class="nav-link">Notifications</a>
+                    </li>
+
+                    <!-- Theme Toggle Switch -->
+                    <li>
+                        <button type="button" class="theme-toggle-btn" onclick="toggleNutriCheckTheme()" aria-label="Toggle light/dark theme">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                            <span class="theme-label">Dark</span>
+                        </button>
+                    </li>
+
+                    <!-- Anonymous User Actions -->
+                    <li sec:authorize="isAnonymous()">
+                        <a th:href="@{/login}" class="btn btn-outline btn-sm">Log In</a>
+                    </li>
+                    <li sec:authorize="isAnonymous()">
+                        <a th:href="@{/register}" class="btn btn-primary btn-sm">Get Started</a>
+                    </li>
+
+                    <!-- Authenticated User Actions -->
+                    <li sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 6px;">
+                        <span class="user-badge">
+                            👤 <span sec:authentication="name">User</span>
+                        </span>
+                        <a sec:authorize="hasRole('PATIENT')" th:href="@{/patient/profile}" class="btn btn-outline btn-sm" title="Profile Settings">⚙️ Profile</a>
+                        <form th:action="@{/logout}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Global Alerts Fragment -->
+    <div th:fragment="alerts" class="container" style="margin-top: 1.5rem;" th:if="${successMessage != null or errorMessage != null}">
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span>✅ <span th:text="${successMessage}">Success message</span></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <span>⚠️ <span th:text="${errorMessage}">Error message</span></span>
+        </div>
+    </div>
+
+    <!-- Footer Fragment -->
+    <footer class="footer" th:fragment="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="brand-logo" style="margin-bottom: 0.75rem;">
+                        <img th:src="@{/images/logo.svg}" alt="NutriCheck" class="brand-img-logo" style="width: 32px; height: 32px;">
+                        <span class="brand-text" style="font-size: 1.15rem;">Nutri<span class="brand-highlight">Check</span></span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 360px; line-height: 1.6;">
+                        A centralized health &amp; clinical diet management platform. Providing biometric health tracking, WHO-aligned BMI evaluations, and personalized nutrition consultations.
+                    </p>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Clinical Services</h4>
+                    <ul>
+                        <li><a th:href="@{/bmi-calculator}">BMI Evaluation Tool</a></li>
+                        <li><a th:href="@{/about}">Clinical Standards</a></li>
+                        <li><a th:href="@{/register}">Patient Portal</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Security &amp; Standards</h4>
+                    <ul>
+                        <li style="color: var(--text-muted);">WHO Clinical Guidelines</li>
+                        <li style="color: var(--text-muted);">Role-Based Privacy Control</li>
+                        <li style="color: var(--text-muted);">Encrypted Data Persistence</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 NutriCheck Health Systems Inc. All rights reserved.</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <span>Privacy Policy</span>
+                    <span>&bull;</span>
+                    <span>Terms of Service</span>
+                    <span>&bull;</span>
+                    <span>Clinical Disclaimer</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

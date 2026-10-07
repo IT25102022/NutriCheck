@@ -1,0 +1,907 @@
+/* ==========================================================================
+   NutriCheck - Cinematic Scrollytelling Visual Engine Stylesheet
+   Restrained Healthcare Green + Clean Surfaces + Light/Dark Adaptive
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Scrollytelling Container & Sticky Viewport Layout
+   -------------------------------------------------------------------------- */
+.scrolly-wrapper {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  background: var(--bg-app);
+  overflow-x: clip;
+  transition: background-color 0.3s ease;
+}
+
+/* Healthcare-themed background image layer */
+.scrolly-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: url('/images/scrolly-bg-light.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  /* Pin image to the viewport so it looks identical at every scroll position
+     (otherwise it's stretched over the 520vh track and the top looks faded) */
+  background-attachment: fixed;
+  opacity: 0.38;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+/* Soft vignette overlay to fade edges into the page background */
+.scrolly-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: 
+    radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, var(--bg-app) 85%),
+    linear-gradient(to bottom, var(--bg-app) 0%, transparent 8%, transparent 90%, var(--bg-app) 100%);
+  /* Radial vignette follows the viewport; vertical fade stays on the section */
+  background-attachment: fixed, scroll;
+  pointer-events: none;
+  transition: background 0.3s ease;
+}
+
+/* Light theme: make the background image subtly visible, with a gentler vignette */
+:root:not([data-theme="dark"]) .scrolly-wrapper::before {
+  opacity: 0.8;
+}
+
+:root:not([data-theme="dark"]) .scrolly-wrapper::after {
+  background:
+    radial-gradient(ellipse 120% 120% at 50% 50%, transparent 55%, rgba(248, 250, 252, 0.55) 100%),
+    linear-gradient(to bottom, transparent 0%, transparent 95%, var(--bg-app) 100%);
+  background-attachment: fixed, scroll;
+}
+
+/* Dark theme: swap to dark variant background with adjusted opacity */
+[data-theme="dark"] .scrolly-wrapper::before {
+  background-image: url('/images/scrolly-bg-dark.jpg');
+  opacity: 0.55;
+}
+
+
+.scrolly-track {
+  position: relative;
+  width: 100%;
+  height: 520vh; /* Master scroll track length */
+}
+
+.scrolly-viewport {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+}
+
+/* Ambient Visual Glow */
+.ambient-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.35;
+  will-change: transform;
+  z-index: 1;
+}
+
+[data-theme="dark"] .ambient-glow {
+  opacity: 0.25;
+}
+
+.ambient-glow-1 {
+  width: 750px;
+  height: 750px;
+  top: -120px;
+  right: 5%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0) 70%);
+}
+
+.ambient-glow-2 {
+  width: 800px;
+  height: 800px;
+  bottom: -150px;
+  left: 5%;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.2) 0%, rgba(14, 165, 233, 0) 70%);
+}
+
+.ambient-grid {
+  display: none;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(100, 116, 139, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(100, 116, 139, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, #000 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, #000 40%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* --------------------------------------------------------------------------
+   3D Bio-Scene Canvas (particle DNA helix + molecular network + bokeh)
+   Rendered by /js/bio-scene.js. Sits above the background image and below
+   the content stage.
+   -------------------------------------------------------------------------- */
+.bio-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.bio-canvas.is-ready {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Scroll Progress Indicator
+   -------------------------------------------------------------------------- */
+.scrolly-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(to right, var(--primary) 0%, var(--secondary) 100%);
+  z-index: 1001;
+  box-shadow: 0 0 10px rgba(5, 150, 105, 0.5);
+  will-change: width;
+}
+
+/* --------------------------------------------------------------------------
+   Chapter Scrubber Navigation (Right side)
+   -------------------------------------------------------------------------- */
+.scrolly-nav-scrubber {
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 200;
+}
+
+.scrubber-dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-light);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.scrubber-dot:hover {
+  transform: scale(1.3);
+  background: var(--primary);
+}
+
+.scrubber-dot.active {
+  background: var(--primary);
+  transform: scale(1.4);
+  box-shadow: 0 0 10px rgba(5, 150, 105, 0.6);
+}
+
+.scrubber-tooltip {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.scrubber-dot:hover .scrubber-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+@media (max-width: 1024px) {
+  .scrolly-nav-scrubber {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Scrollytelling Stage & Two-Column Grid
+   -------------------------------------------------------------------------- */
+.scrolly-stage-container {
+  position: relative;
+  width: 100%;
+  max-width: min(92vw, 1440px);
+  height: 100%;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+  display: grid;
+  grid-template-columns: minmax(420px, 1fr) minmax(560px, 1.25fr);
+  align-items: center;
+  gap: clamp(2.5rem, 4.5vw, 4.5rem);
+  z-index: 10;
+}
+
+/* --------------------------------------------------------------------------
+   Left Column: Synchronized Narrative Chapters
+   -------------------------------------------------------------------------- */
+.narrative-track {
+  position: relative;
+  width: 100%;
+  height: min(560px, 78vh);
+  display: flex;
+  align-items: center;
+}
+
+.narrative-chapter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
+  pointer-events: none;
+}
+
+.narrative-chapter.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.chapter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+}
+
+.chapter-title {
+  font-size: clamp(2.4rem, 3.1vw, 3.35rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--text-main);
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.03em;
+}
+
+.chapter-title .highlight-green {
+  color: var(--primary);
+}
+
+.chapter-title .highlight-secondary {
+  color: var(--secondary);
+}
+
+.chapter-desc {
+  font-size: clamp(1.02rem, 1.15vw, 1.16rem);
+  color: var(--text-muted);
+  line-height: 1.68;
+  margin-bottom: 1.75rem;
+  max-width: 560px;
+}
+
+.chapter-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.chapter-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.feature-icon-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary-subtle);
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid var(--primary-border);
+}
+
+.chapter-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   Right Column: Morphing Visual Stage Container
+   -------------------------------------------------------------------------- */
+.stage-track {
+  position: relative;
+  width: 100%;
+  height: min(580px, 80vh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.morph-console {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  height: min(530px, 76vh);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--border-color);
+  overflow: hidden;
+  will-change: transform;
+}
+
+/* Console Header */
+.console-header-bar {
+  height: 48px;
+  background: var(--bg-card-subtle);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+}
+
+.console-dots {
+  display: flex;
+  gap: 7px;
+}
+
+.console-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-color);
+}
+
+.console-title-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+}
+
+/* Console Viewport & Visual Layers */
+.console-viewport {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 48px);
+  padding: 1.75rem;
+  overflow: hidden;
+}
+
+.visual-layer {
+  position: absolute;
+  inset: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+  /* Crucial: no CSS transition on transform/opacity so JS RAF interpolation is 100% smooth without jitter */
+  transition: none;
+}
+
+/* --------------------------------------------------------------------------
+   Layer 1: Health Profile & Vitals (UNDERSTAND)
+   -------------------------------------------------------------------------- */
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.vital-metric-card {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.15rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vital-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vital-value {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.15;
+}
+
+.vital-status-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  width: fit-content;
+  margin-top: 4px;
+}
+
+.vital-footer-strip {
+  background: var(--primary-subtle);
+  border: 1px solid var(--primary-border);
+  padding: 0.85rem 1.2rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+/* --------------------------------------------------------------------------
+   Layer 2: Precision BMI Progress (TRACK)
+   -------------------------------------------------------------------------- */
+.bmi-hero-card {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.bmi-hero-score {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--primary);
+  line-height: 1;
+  margin: 0.35rem 0;
+}
+
+.bmi-spectrum-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(to right, #38bdf8 0%, #38bdf8 25%, #10b981 25%, #10b981 55%, #f59e0b 55%, #f59e0b 80%, #f43f5e 80%, #f43f5e 100%);
+  position: relative;
+  margin: 1.25rem 0 0.65rem 0;
+}
+
+.bmi-spectrum-marker {
+  position: absolute;
+  top: -4px;
+  left: 42%;
+  width: 5px;
+  height: 18px;
+  background: var(--text-main);
+  border-radius: 3px;
+}
+
+.bmi-tier-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Layer 3: Tailored Nutrition Plans (NOURISH)
+   -------------------------------------------------------------------------- */
+.diet-plan-stage-card {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  border-left: 5px solid var(--primary);
+  margin-bottom: 1.15rem;
+}
+
+.diet-plan-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.65rem;
+}
+
+.diet-plan-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.diet-plan-summary {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 1rem;
+}
+
+.diet-macro-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.macro-tag {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* --------------------------------------------------------------------------
+   Layer 4: Consultations & Appointments (CONNECT)
+   -------------------------------------------------------------------------- */
+.consultation-stage-card {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+}
+
+.specialist-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.specialist-avatar-box {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: var(--primary-subtle);
+  border: 1px solid var(--primary-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  color: var(--primary);
+}
+
+.specialist-info h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.specialist-info p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.appointment-slot-pill {
+  background: var(--bg-card);
+  border: 1px solid var(--primary-border);
+  padding: 12px 16px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+/* --------------------------------------------------------------------------
+   Layer 5: Real-Time Alerts (STAY INFORMED)
+   -------------------------------------------------------------------------- */
+.notifications-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.notification-alert-item {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.1rem 1.3rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.notification-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--primary-subtle);
+  border: 1px solid var(--primary-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.notification-body h5 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 3px;
+}
+
+.notification-body p {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------------------
+   Layer 6: Platform Summary & CTA (START)
+   -------------------------------------------------------------------------- */
+.start-stage-card {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.start-hub-logo-box {
+  width: 76px;
+  height: 76px;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 8px 24px rgba(16, 185, 129, 0.35));
+  animation: logoFloat 4s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.start-hub-brand-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 18px;
+}
+
+.start-hub-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.start-hub-desc {
+  font-size: 0.98rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  max-width: 440px;
+}
+
+.start-hub-badges {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+/* --------------------------------------------------------------------------
+   Supportive Features Grid Section (Below Scrollytelling)
+   -------------------------------------------------------------------------- */
+.landing-feature-showcase {
+  padding: 5rem 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  transition: background-color 0.3s ease;
+}
+
+.landing-feature-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 3.5rem auto;
+}
+
+.landing-feature-header h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.landing-feature-header p {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.feature-pillar-card {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  transition: var(--transition);
+}
+
+.feature-pillar-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-border);
+  box-shadow: var(--shadow-md);
+}
+
+.feature-pillar-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-subtle);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--primary-border);
+}
+
+.feature-pillar-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.feature-pillar-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive & Accessibility
+   -------------------------------------------------------------------------- */
+@media (max-width: 960px) {
+  .scrolly-track {
+    height: auto;
+  }
+  .scrolly-viewport {
+    position: relative;
+    height: auto;
+    padding: 3rem 0;
+  }
+  .scrolly-stage-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    height: auto;
+  }
+  .narrative-track {
+    height: auto;
+  }
+  .narrative-chapter {
+    position: relative;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    margin-bottom: 2rem;
+  }
+  .stage-track {
+    height: auto;
+  }
+  .morph-console {
+    height: auto;
+    transform: none !important;
+  }
+  .console-viewport {
+    height: auto;
+    min-height: 380px;
+  }
+  .visual-layer {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    visibility: visible;
+    transform: none !important;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .scrolly-track {
+    height: auto;
+  }
+  .scrolly-viewport {
+    position: relative;
+    height: auto;
+  }
+  .morph-console {
+    transform: none !important;
+  }
+  .narrative-chapter {
+    transition: none !important;
+  }
+  .visual-layer {
+    transition: none !important;
+    transform: none !important;
+  }
+}
