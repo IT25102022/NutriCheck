@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Access Denied - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+
+    <main class="main-content">
+        <div class="container container-narrow" style="text-align: center; padding: 3rem 1rem;">
+            <div class="card" style="padding: 2.5rem 1.5rem; box-shadow: var(--shadow-lg);">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--rose-subtle); color: var(--rose); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem;">
+                    🔒
+                </div>
+                <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
+                    Access Restricted
+                </h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 440px; margin: 0 auto 1.5rem; line-height: 1.6;">
+                    You do not have the required administrative or clinical permissions to access this page. Please return to your authorized dashboard or contact your clinic administrator.
+                </p>
+
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <a th:href="@{/}" class="btn btn-outline btn-sm">Return Home</a>
+                    <a sec:authorize="hasRole('PATIENT')" th:href="@{/patient/dashboard}" class="btn btn-primary btn-sm">Patient Dashboard</a>
+                    <a sec:authorize="hasRole('NUTRITIONIST')" th:href="@{/nutritionist/dashboard}" class="btn btn-primary btn-sm">Nutritionist Dashboard</a>
+                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" class="btn btn-primary btn-sm">Admin Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
