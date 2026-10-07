@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('BMI Calculator - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container container-narrow">
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h1 class="card-title">⚡ Instant BMI Calculator &amp; Recommendations</h1>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                    Enter your height in centimeters and weight in kilograms to calculate your Body Mass Index and see rule-based diet recommendations.
+                </p>
+
+                <form th:action="@{/bmi-calculator}" method="post">
+                    <div class="grid-cols-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Age (years)</label>
+                            <input type="number" name="age" th:value="${age}" class="form-control" placeholder="e.g. 28" min="1" max="120">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Height (cm)</label>
+                            <input type="number" step="0.1" name="heightCm" th:value="${heightCm}" class="form-control" placeholder="e.g. 175" required min="50" max="280">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Weight (kg)</label>
+                            <input type="number" step="0.1" name="weightKg" th:value="${weightKg}" class="form-control" placeholder="e.g. 70" required min="20" max="400">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                        Calculate My BMI &amp; View Diets
+                    </button>
+                </form>
+
+                <!-- Results Section if Calculated -->
+                <div th:if="${bmiValue != null}" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                    <div class="bmi-display-box" style="margin-bottom: 1.5rem;">
+                        <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Your Calculated BMI</span>
+                        <div class="bmi-number" th:text="${bmiValue}">22.86</div>
+                        <div style="display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 4px;">
+                            <span th:class="'badge ' + ${bmiCategory.badgeClass}" style="font-size: 1rem; padding: 6px 16px;"
+                                  th:text="${bmiCategory.displayName}">Normal Weight</span>
+                            <span th:if="${age != null}" class="badge badge-secondary" style="font-size: 0.9rem; padding: 6px 12px;"
+                                  th:text="${'Age ' + age}">Age 28</span>
+                        </div>
+                        <p style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-main);"
+                           th:text="${bmiCategory.recommendationSummary}">
+                            Recommendation guidance
+                        </p>
+                    </div>
+
+                    <!-- Recommended Diet Plans Preview -->
+                    <div th:if="${recommendedPlans != null and !recommendedPlans.isEmpty()}">
+                        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary-dark);">
+                            🥗 Suggested Diet Plans for Your Category
+                        </h3>
+                        <div th:each="plan : ${recommendedPlans}" class="card" style="margin-bottom: 1rem; border-left: 4px solid var(--primary);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                <h4 th:text="${plan.title}" style="color: var(--text-main); font-weight: 700;">Diet Title</h4>
+                                <span class="badge badge-amber" th:text="${plan.dailyCalories != null ? plan.dailyCalories + ' kcal/day' : 'Target Diet'}">2000 kcal</span>
+                            </div>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;" th:text="${plan.shortDescription}">Description</p>
+                            <div style="background: var(--bg-card-subtle); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.85rem; white-space: pre-line;" th:text="${plan.mealPlanDetails}">
+                                Meal plan details
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 1.5rem; background: var(--secondary-subtle); border: 1px solid var(--secondary-border); padding: 1rem; border-radius: var(--radius-md);">
+                        <p style="font-size: 0.9rem; color: var(--secondary-dark); font-weight: 600;">
+                            Want to save your BMI history, track changes over time, and book nutritionist consultations?
+                        </p>
+                        <a th:href="@{/register}" class="btn btn-secondary btn-sm" style="margin-top: 0.5rem;">Register Free Patient Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
