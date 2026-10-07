@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Health Records - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">🩺 Health Record Management</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Track, record, and maintain your personal health measurements over time.</p>
+                </div>
+                <a th:href="@{/patient/dashboard}" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+            </div>
+
+            <!-- Add Health Record Card -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">➕ Add New Health Log</h2>
+                </div>
+                <form th:action="@{/patient/health-records}" th:object="${record}" method="post">
+                    <div class="grid-cols-4">
+                        <div class="form-group">
+                            <label class="form-label">Height (cm) *</label>
+                            <input type="number" step="0.1" th:field="*{heightCm}" class="form-control" placeholder="175.0" required min="50" max="280">
+                            <span class="form-text-error" th:if="${#fields.hasErrors('heightCm')}" th:errors="*{heightCm}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Weight (kg) *</label>
+                            <input type="number" step="0.1" th:field="*{weightKg}" class="form-control" placeholder="70.5" required min="20" max="400">
+                            <span class="form-text-error" th:if="${#fields.hasErrors('weightKg')}" th:errors="*{weightKg}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Systolic BP (mmHg)</label>
+                            <input type="number" th:field="*{systolicBp}" class="form-control" placeholder="120" min="60" max="250">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Diastolic BP (mmHg)</label>
+                            <input type="number" th:field="*{diastolicBp}" class="form-control" placeholder="80" min="40" max="150">
+                        </div>
+                    </div>
+
+                    <div class="grid-cols-3">
+                        <div class="form-group">
+                            <label class="form-label">Blood Sugar (mg/dL)</label>
+                            <input type="number" step="0.1" th:field="*{bloodSugar}" class="form-control" placeholder="95.0" min="40" max="500">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Total Cholesterol (mg/dL)</label>
+                            <input type="number" step="0.1" th:field="*{cholesterol}" class="form-control" placeholder="180.0" min="50" max="500">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Notes &amp; Observations</label>
+                            <input type="text" th:field="*{notes}" class="form-control" placeholder="e.g. Fasting morning test">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                        Save Record &amp; Calculate BMI
+                    </button>
+                </form>
+            </div>
+
+            <!-- Historical Records Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📜 Recorded Health History</h2>
+                    <span class="badge badge-green" th:text="${records.size() + ' Logs'}">4 Logs</span>
+                </div>
+
+                <div th:if="${records == null or records.isEmpty()}" style="text-align: center; padding: 2rem 0; color: var(--text-muted);">
+                    <p>No health measurements logged yet. Use the form above to add your first record!</p>
+                </div>
+
+                <div class="table-responsive" th:if="${records != null and !records.isEmpty()}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; Time</th>
+                                <th>Height</th>
+                                <th>Weight</th>
+                                <th>BMI</th>
+                                <th>Blood Pressure</th>
+                                <th>Blood Sugar</th>
+                                <th>Cholesterol</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="r : ${records}">
+                                <td style="font-weight: 600;" th:text="${#temporals.format(r.recordedAt, 'MMM dd, yyyy HH:mm')}">Oct 12, 2025</td>
+                                <td th:text="${r.heightCm + ' cm'}">178 cm</td>
+                                <td th:text="${r.weightKg + ' kg'}">80 kg</td>
+                                <td>
+                                    <strong th:text="${r.calculatedBmi}">25.2</strong>
+                                    <span th:if="${r.bmiCategory != null}" th:class="'badge ' + ${r.bmiCategory.badgeClass}" style="margin-left: 4px;"
+                                          th:text="${r.bmiCategory.displayName}">Normal</span>
+                                </td>
+                                <td th:text="${r.bloodPressureText}">120/80</td>
+                                <td th:text="${r.bloodSugar != null ? r.bloodSugar + ' mg/dL' : '-'}">95 mg/dL</td>
+                                <td th:text="${r.cholesterol != null ? r.cholesterol + ' mg/dL' : '-'}">180 mg/dL</td>
+                                <td style="font-size: 0.85rem; color: var(--text-muted);" th:text="${r.notes != null ? r.notes : '-'}">Notes</td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <a th:href="@{/patient/health-records/edit/{id}(id=${r.id})}" class="btn btn-outline btn-sm">Edit</a>
+                                        <form th:action="@{/patient/health-records/delete/{id}(id=${r.id})}" method="post" onsubmit="return confirm('Are you sure you want to delete this record?');">
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
