@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Manage Consultations - Healthcare Professional - NutriCheck')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: navbar}"></header>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="main-content">
+        <div class="container">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">📅 Consultation Appointments Manager</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Accept, confirm, complete, and provide clinical feedback notes for your patient consultations.</p>
+                </div>
+                <a th:href="@{/healthcare-professional/dashboard}" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Scheduled Appointments</h2>
+                    <span class="badge badge-green" th:text="${appointments.size() + ' Total'}">0 Total</span>
+                </div>
+
+                <div th:if="${appointments == null or appointments.isEmpty()}" style="text-align: center; padding: 2.5rem 0; color: var(--text-muted);">
+                    <p>No appointments scheduled at the moment.</p>
+                </div>
+
+                <div class="table-responsive" th:if="${appointments != null and !appointments.isEmpty()}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; Time</th>
+                                <th>Patient</th>
+                                <th>Status</th>
+                                <th>Patient Reason</th>
+                                <th>Consultation Feedback / Notes</th>
+                                <th>Update Status &amp; Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="a : ${appointments}">
+                                <td>
+                                    <strong th:text="${#temporals.format(a.appointmentDate, 'MMM dd, yyyy')}">Date</strong><br/>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);" th:text="${#temporals.format(a.appointmentTime, 'hh:mm a')}">Time</span>
+                                </td>
+                                <td>
+                                    <strong th:text="${a.patient.fullName}">Patient Name</strong><br/>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${a.patient.email}">Email</span><br/>
+                                    <a th:href="@{/healthcare-professional/patient/{id}(id=${a.patient.id})}" style="font-size: 0.75rem; color: var(--secondary-dark); font-weight: 600;">
+                                        View Health History &rarr;
+                                    </a>
+                                </td>
+                                <td>
+                                    <span th:class="'badge ' + ${a.status.badgeClass}" th:text="${a.status.displayName}">Status</span>
+                                </td>
+                                <td style="font-size: 0.85rem; max-width: 200px;" th:text="${a.patientNotes != null ? a.patientNotes : '-'}">Notes</td>
+                                <td style="font-size: 0.85rem; max-width: 220px;">
+                                    <span th:if="${a.consultationNotes != null}" th:text="${a.consultationNotes}" style="color: var(--primary-dark); font-weight: 500;">Notes</span>
+                                    <span th:if="${a.consultationNotes == null}" style="color: var(--text-light); font-style: italic;">No notes provided</span>
+                                </td>
+                                <td>
+                                    <form th:if="${a.status.name() != 'CANCELLED'}" th:action="@{/healthcare-professional/appointments/{id}/status(id=${a.id})}" method="post">
+                                        <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                            <select name="status" class="form-control" style="font-size: 0.8rem; padding: 4px 6px;">
+                                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.displayName}"
+                                                        th:selected="${a.status == s}">Status</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-primary btn-sm" style="padding: 4px 8px; font-size: 0.75rem;">Save</button>
+                                        </div>
+                                        <input type="text" name="consultationNotes" class="form-control"
+                                               th:value="${a.consultationNotes}"
+                                               placeholder="Enter clinical notes..."
+                                               style="font-size: 0.75rem; padding: 3px 6px;">
+                                    </form>
+                                    <span th:if="${a.status.name() == 'CANCELLED'}" class="badge badge-amber">Cancelled — Locked</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
